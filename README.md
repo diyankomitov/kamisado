@@ -1,3 +1,6 @@
-CS207 PROJECT TEMPLATE
+CS207 Kamisado Project
 ====
-This is the template for the cs207 paired project.  Delete this line and add your names and email addresses.
+Developers:
+
+Diyan Komitov diyan.komitov.2015@uni.strath.ac.uk
+Callum Muir callum.muir.2016@uni.strath.ac.uk
