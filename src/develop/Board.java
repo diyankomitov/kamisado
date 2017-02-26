@@ -8,20 +8,19 @@ import static develop.Colors.*;
 import static develop.Square.SQUARE_SIZE;
 
 public class Board extends Pane {
-    private int BOARD_LENGTH = 8;
+    public static final int BOARD_LENGTH = 8;
     private String[][] tileMap;
-    private Square[][] board;
+    private Square[][] squares;
+    private Square square;
     
     public Board() {
+        //temp
         setPrefSize(SQUARE_SIZE * BOARD_LENGTH, SQUARE_SIZE * BOARD_LENGTH);
-        setMinSize(SQUARE_SIZE * (BOARD_LENGTH - 2), SQUARE_SIZE * BOARD_LENGTH - 2);
+        setMinSize(getPrefWidth()/2, getPrefHeight()/2);
         
         createTileMap();
         createBoard();
-    }
-    
-    public Colors getSquareColor(int x, int y) {
-        return board[y][x].getColor();
+        placeTowers();
     }
     
     private void createTileMap() {
@@ -37,8 +36,9 @@ public class Board extends Pane {
     
     private void createBoard() {
         String tile;
-        Square square;
-        board = new Square[BOARD_LENGTH][BOARD_LENGTH]; //array to store squares
+        squares = new Square[BOARD_LENGTH][BOARD_LENGTH]; //array to store squares
+        NumberBinding minBoardDimension = Bindings.min(this.widthProperty(),
+                this.heightProperty());
         
         for(int y = 0; y < BOARD_LENGTH; y++) {
             for(int x = 0; x < BOARD_LENGTH; x++) {
@@ -72,15 +72,31 @@ public class Board extends Pane {
                         break;
                 }
                 
-                getChildren().add(square);  //add to pane
-                board[y][x] = square;   //add to array
-                
-                //Bind square width to the min of width and height of board
-                //Bind square height to square width
-                NumberBinding minBoardDimension = Bindings.min(widthProperty(), heightProperty());
                 square.widthProperty().bind(minBoardDimension.divide(BOARD_LENGTH));
-                square.heightProperty().bind(square.widthProperty());
+    
+                getChildren().add(square);  //add to pane
+                squares[y][x] = square;   //add to array
             }
+        }
+    }
+    
+    private void placeTowers() {
+        Tower tower;
+        Tower[][] towers = new Tower[BOARD_LENGTH][BOARD_LENGTH];
+        
+        int topRow = 0;
+        int bottomRow = BOARD_LENGTH-1;
+    
+        for(int x = 0; x < BOARD_LENGTH; x++) {
+            square = squares[topRow][x];
+            tower = new Tower(square, square.getColor(), BLACK);
+            getChildren().add(tower);
+            towers[topRow][x] = tower;
+            
+            square = squares[bottomRow][x];
+            tower = new Tower(square, square.getColor(), WHITE);
+            getChildren().add(tower);
+            towers[bottomRow][x] = tower;
         }
     }
 }

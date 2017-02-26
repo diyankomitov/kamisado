@@ -7,16 +7,12 @@ public class Square extends Rectangle {
     private Colors color;
     
     public Square(int x, int y) {
-        //set x, y, width, height
-        super(x * SQUARE_SIZE, y * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+        setStroke(Colors.TRUEBLACK.getValue());
+        strokeWidthProperty().bind(widthProperty().divide(33));
         
-        setStroke(Colors.BLACK.getValue());
-        setStrokeWidth(3);
-        
-        // when width changes, x adjusts accordingly
-        xProperty().bind(widthProperty().multiply(x));
-        // when height changes, y adjusts accordingly
-        yProperty().bind(heightProperty().multiply(y));
+        this.heightProperty().bind(this.widthProperty());
+        this.xProperty().bind(this.widthProperty().multiply(x));
+        this.yProperty().bind(this.heightProperty().multiply(y));
     }
     
     public Colors getColor() {
@@ -28,4 +24,3 @@ public class Square extends Rectangle {
         setFill(color.getValue());
     }
 }
-    

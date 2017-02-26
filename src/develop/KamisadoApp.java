@@ -37,7 +37,7 @@ public class KamisadoApp extends Application {
         /* Create footer */
         HBox footer = new HBox();
         
-        Label info = new Label("Here is some info that changes depending on your mouse");
+        Label info = new Label("Here is some info that about things");
         footer.getChildren().add(info);
         
         /* Add all elements */

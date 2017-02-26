@@ -1,7 +1,6 @@
 package develop;
 
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 
 public enum Colors {
     
@@ -13,8 +12,9 @@ public enum Colors {
     RED ("#c12127"),
     GREEN ("#00914a"),
     BROWN ("#3d271f"),
-    WHITE ("#ffffff"),
-    BLACK ("#000000");
+    WHITE ("#f2f2f2"),
+    BLACK ("#333333"),
+    TRUEBLACK ("#000000");
     
     private final String value;
     
