@@ -17,7 +17,9 @@ public class KamisadoApp extends Application {
     
     private Stage stage;
     private Board board;
-    private int i;
+    private Timer timer;
+    private int x = 0;
+    private int y = 1;
     
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -57,18 +59,31 @@ public class KamisadoApp extends Application {
         stage = primaryStage;
         stage.setTitle("Kamisado");
         stage.setScene(scene);
-        stage.setOnCloseRequest(event -> stage.close());
+        stage.setOnCloseRequest(event -> {
+                    stage.close();
+                    timer.cancel();
+                    timer.purge();
+                });
         stage.show();
-        /*new Timer().schedule(
+        
+        /* Test */
+        timer = new Timer();
+        timer.schedule(
                 new TimerTask() {
 
                     @Override
                     public void run() {
-                        
-                        board.getTower(0,0).setCurrentSquare(board.getSquare(i,i));
-                        i++;
+                        board.getTower(0,0).setCurrentSquare(board.getSquare(x,y));
+                        x++;
+                        if(x==8) {
+                            x = 0;
+                            y++;
+                            if(y == 7) {
+                                y = 1;
+                            }
+                        }
                     }
-                }, 0, 2000);*/
+                }, 0, 500);
     }
     
     public static void main(String[] args) {
