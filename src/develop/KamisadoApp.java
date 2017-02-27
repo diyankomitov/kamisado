@@ -10,9 +10,14 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class KamisadoApp extends Application {
     
     private Stage stage;
+    private Board board;
+    private int i;
     
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -27,7 +32,8 @@ public class KamisadoApp extends Application {
         navMenu.getMenus().addAll(fileMenu, editMenu, viewMenu);
         
         /* Create board */
-        Board board = new Board();
+        board = new Board();
+        
         
         /* Create sidebar */
         VBox sidebar = new VBox();
@@ -53,6 +59,16 @@ public class KamisadoApp extends Application {
         stage.setScene(scene);
         stage.setOnCloseRequest(event -> stage.close());
         stage.show();
+        /*new Timer().schedule(
+                new TimerTask() {
+
+                    @Override
+                    public void run() {
+                        
+                        board.getTower(0,0).setCurrentSquare(board.getSquare(i,i));
+                        i++;
+                    }
+                }, 0, 2000);*/
     }
     
     public static void main(String[] args) {

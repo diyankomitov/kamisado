@@ -8,10 +8,11 @@ import static develop.Colors.*;
 import static develop.Square.SQUARE_SIZE;
 
 public class Board extends Pane {
-    public static final int BOARD_LENGTH = 8;
+    private static final int BOARD_LENGTH = 8;
     private String[][] tileMap;
     private Square[][] squares;
     private Square square;
+    private Tower[][] towers;
     
     public Board() {
         //temp
@@ -21,6 +22,13 @@ public class Board extends Pane {
         createTileMap();
         createBoard();
         placeTowers();
+    }
+    
+    public Tower getTower(int x, int y) {
+        return towers[y][x];
+    }
+    public Square getSquare(int x, int y) {
+        return squares[y][x];
     }
     
     private void createTileMap() {
@@ -36,16 +44,15 @@ public class Board extends Pane {
     
     private void createBoard() {
         String tile;
-        squares = new Square[BOARD_LENGTH][BOARD_LENGTH]; //array to store squares
-        NumberBinding minBoardDimension = Bindings.min(this.widthProperty(),
-                this.heightProperty());
+        squares = new Square[BOARD_LENGTH][BOARD_LENGTH];
+        NumberBinding minBoardDimension = Bindings.min(this.widthProperty(), this.heightProperty());
         
         for(int y = 0; y < BOARD_LENGTH; y++) {
             for(int x = 0; x < BOARD_LENGTH; x++) {
-                tile = tileMap[y][x];                   //iterate through the tilemap
-                square = new Square(x, y);              //make square
-                
-                switch(tile) {                          //set color depending on tilemap
+                tile = tileMap[y][x];
+                square = new Square(x, y);
+    
+                switch(tile) {
                     case "O":
                         square.setColor(ORANGE);
                         break;
@@ -74,29 +81,27 @@ public class Board extends Pane {
                 
                 square.widthProperty().bind(minBoardDimension.divide(BOARD_LENGTH));
     
-                getChildren().add(square);  //add to pane
-                squares[y][x] = square;   //add to array
+                getChildren().add(square);
+                squares[y][x] = square;
             }
         }
     }
     
     private void placeTowers() {
         Tower tower;
-        Tower[][] towers = new Tower[BOARD_LENGTH][BOARD_LENGTH];
+        towers = new Tower[BOARD_LENGTH][BOARD_LENGTH];
+        int y = 0;
+        Colors type = BLACK;
         
-        int topRow = 0;
-        int bottomRow = BOARD_LENGTH-1;
-    
-        for(int x = 0; x < BOARD_LENGTH; x++) {
-            square = squares[topRow][x];
-            tower = new Tower(square, square.getColor(), BLACK);
-            getChildren().add(tower);
-            towers[topRow][x] = tower;
-            
-            square = squares[bottomRow][x];
-            tower = new Tower(square, square.getColor(), WHITE);
-            getChildren().add(tower);
-            towers[bottomRow][x] = tower;
+        for(int i = 0; i < 2; i++) {
+            for(int x = 0; x < BOARD_LENGTH; x++) {
+                square = squares[y][x];
+                tower = new Tower(square, square.getColor(), type);
+                getChildren().add(tower);
+                towers[y][x] = tower;
+            }
+            y = BOARD_LENGTH-1;
+            type = WHITE;
         }
     }
 }

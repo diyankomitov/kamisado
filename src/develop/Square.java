@@ -8,8 +8,7 @@ public class Square extends Rectangle {
     
     public Square(int x, int y) {
         setStroke(Colors.TRUEBLACK.getValue());
-        strokeWidthProperty().bind(widthProperty().divide(33));
-        
+        this.strokeWidthProperty().bind(this.widthProperty().divide(33));
         this.heightProperty().bind(this.widthProperty());
         this.xProperty().bind(this.widthProperty().multiply(x));
         this.yProperty().bind(this.heightProperty().multiply(y));
