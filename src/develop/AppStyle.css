@@ -1,0 +1,46 @@
+/* Main Menu Styling */
+
+#menuRoot {
+    -fx-background-color: #383838;
+    -fx-alignment: baseline-center;
+    -fx-padding: 250,0,0,0;
+    -fx-spacing: 50;
+}
+
+#gameTitle {
+    -fx-font-family: Akashi;
+    -fx-font-size: 160;
+    -fx-text-alignment: center;
+}
+
+.titleLetter {
+    -fx-stroke: black;
+    -fx-stroke-width: 10px;
+}
+
+.menuButton {
+    -fx-font-family: Akashi;
+    -fx-font-size: 30;
+    -fx-pref-width: 500px;
+    -fx-pref-height: 50px;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+}
+
+.menuButton:hover {
+    -fx-background-color: #4e4e4e;
+}
+
+.menuButton:armed {
+    -fx-background-color: #242424;
+}
+
+.menuButton:focused {
+    -fx-text-fill: #025391;
+}
+
+/* Game screen styling */
+
+#gameRoot {
+    -fx-background-color: #383838;
+}
