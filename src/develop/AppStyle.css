@@ -1,8 +1,9 @@
 /* Main Menu Styling */
 
-#menuRoot {
+#menuView {
     -fx-background-color: #383838;
     -fx-alignment: baseline-center;
+    -fx-fill-width: false;
     -fx-padding: 250,0,0,0;
     -fx-spacing: 50;
 }
@@ -37,10 +38,62 @@
 
 .menuButton:focused {
     -fx-text-fill: #025391;
+    -fx-spacing: 0;
+}
+
+/* Enter Name Screen Styling */
+#namesWrapper {
+    -fx-spacing: 10;
+}
+
+.nameBox {
+    -fx-spacing: 10;
+    -fx-alignment: center
+}
+
+.nameLabel {
+    -fx-font-family: Akashi;
+    -fx-font-size: 26;
+    -fx-text-fill: #707070;
+}
+
+.nameField {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+    -fx-font-family: Akashi;
+    -fx-font-size: 30;
+    -fx-max-width: 500;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+    -fx-alignment: center
+}
+
+#buttonsWrapper {
+    -fx-alignment: center-right;
+    -fx-spacing: 10;
+}
+
+.nameButton {
+    -fx-font-family: Akashi;
+    -fx-font-size: 30;
+    -fx-pref-width: 200px;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+}
+.nameButton:hover {
+    -fx-background-color: #4e4e4e;
+}
+
+.nameButton:armed {
+    -fx-background-color: #242424;
+}
+
+.nameButton:focused {
+    -fx-text-fill: #025391;
+    -fx-spacing: 0;
 }
 
 /* Game screen styling */
 
-#gameRoot {
+#gameView {
     -fx-background-color: #383838;
 }
