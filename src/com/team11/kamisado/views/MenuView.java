@@ -1,28 +1,21 @@
-package develop.views;
+package com.team11.kamisado.views;
 
-import develop.views.Colors;
 import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.InputEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import javafx.stage.Stage;
 
-import static develop.views.Colors.*;
-
-public class MenuView extends VBox{
+public class MenuView extends VBox {
     
     private static final double INITIALFONTSIZE = 10;
     
-    private Stage stage;
     private StackPane root;
     private TextFlow menuGameTitle;
     private Button newGameButton;
@@ -30,23 +23,26 @@ public class MenuView extends VBox{
     private Button settingsButton;
     private Button exitButton;
     private Button resumeButton;
-    private Button singlePlayerButton;
-    private Button multiPlayerButton;
+    private Button versusPlayerButton;
+    private Button versusAIButton;
     private Button cancelButton;
-    private EventHandler<InputEvent> controller;
     private HBox namesWrapper;
+    private TextField playerTwoName;
+    private TextField playerOneName;
+    private Label playerOneError;
+    private Label playerTwoError;
     private HBox buttonsWrapper;
     private Button playButton;
     private Button backButton;
-    private TextField playerTwoName;
-    private TextField playerOneName;
     
-    public MenuView(Stage stage, StackPane root, EventHandler<InputEvent> controller) {
-        this.setId("menuView");
-        this.stage = stage;
+    private EventHandler<InputEvent> controller;
+    private Button returnToMainMenuButton;
+    
+    public MenuView(StackPane root, EventHandler<InputEvent> controller) {
         this.root = root;
         this.controller = controller;
-        Font.loadFont(getClass().getResource("/fonts/Akashi.ttf").toExternalForm(), INITIALFONTSIZE);
+        this.setId("menuView");
+        Font.loadFont(getClass().getResource("/fonts/Akashi.ttf").toString(), INITIALFONTSIZE);
         
         initMenuElements();
         drawMainMenu();
@@ -77,14 +73,14 @@ public class MenuView extends VBox{
         exitButton.setOnKeyPressed(controller);
     
         /* Pick mode buttons */
-        singlePlayerButton = new Button("Singleplayer");
-        singlePlayerButton.getStyleClass().add("menuButton");
-        singlePlayerButton.setOnMouseClicked(controller);
-        singlePlayerButton.setOnKeyPressed(controller);
+        versusPlayerButton = new Button("Versus Player");
+        versusPlayerButton.getStyleClass().add("menuButton");
+        versusPlayerButton.setOnMouseClicked(controller);
+        versusPlayerButton.setOnKeyPressed(controller);
         
-        multiPlayerButton = new Button("Multiplayer");
-        multiPlayerButton.getStyleClass().add("menuButton");
-        multiPlayerButton.setDisable(true); //TODO enable button
+        versusAIButton = new Button("Versus AI");
+        versusAIButton.getStyleClass().add("menuButton");
+        versusAIButton.setDisable(true); //TODO enable button
         
         cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("menuButton");
@@ -98,38 +94,43 @@ public class MenuView extends VBox{
         resumeButton.setOnKeyPressed(controller);
         
         /* Enter Names */
-    
+        
         Label playerOneLabel = new Label("Player One [Black}");
         playerOneLabel.getStyleClass().add("nameLabel");
-    
+        
         playerOneName = new TextField();
         playerOneName.getStyleClass().add("nameField");
         playerOneName.setPromptText("Enter Name");
         playerOneName.setOnKeyPressed(controller);
-    
+        
+        playerOneError = new Label();
+        playerOneError.getStyleClass().add("nameError");
+        
         Label playerTwoLabel = new Label("Player Two [White}");
         playerTwoLabel.getStyleClass().add("nameLabel");
-    
+        
         playerTwoName = new TextField();
         playerTwoName.getStyleClass().add("nameField");
         playerTwoName.setPromptText("Enter Name");
         playerTwoName.setOnKeyPressed(controller);
-    
-        VBox playerOneNameBox = new VBox(playerOneLabel, playerOneName);
+        
+        playerTwoError = new Label();
+        playerTwoError.getStyleClass().add("nameError");
+        
+        VBox playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
         playerOneNameBox.getStyleClass().add("nameBox");
         
-        VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName);
+        VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
         playerTwoNameBox.getStyleClass().add("nameBox");
-        
         
         namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
         namesWrapper.setId("namesWrapper");
-    
+        
         playButton = new Button("Play");
         playButton.getStyleClass().add("nameButton");
         playButton.setOnMouseClicked(controller);
         playButton.setOnKeyPressed(controller);
-    
+        
         backButton = new Button("Go Back");
         backButton.getStyleClass().add("nameButton");
         backButton.setOnMouseClicked(controller);
@@ -140,19 +141,16 @@ public class MenuView extends VBox{
     }
     
     public void drawMainMenu() {
+        this.setStyle("-fx-background-color: rgba(56, 56, 56)");
         root.getChildren().clear();
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, newGameButton, leaderboardButton, settingsButton,
-                exitButton);
+        this.getChildren().addAll(menuGameTitle, newGameButton, leaderboardButton, settingsButton, exitButton);
     }
     
     public void drawSelectModeScreen() {
-//        root.getChildren().clear();
-//        root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, singlePlayerButton, multiPlayerButton,
-                cancelButton);
+        this.getChildren().addAll(menuGameTitle, versusPlayerButton, versusAIButton, cancelButton);
     }
     
     public void drawEnterNameScreen() {
@@ -160,12 +158,37 @@ public class MenuView extends VBox{
         this.getChildren().addAll(menuGameTitle, namesWrapper, buttonsWrapper);
     }
     
+    public void drawNameErrorMessage(Label player, String errorMessage) {
+        player.setText(errorMessage);
+    }
+    
+    public void initPauseScreen() {
+        this.setStyle("-fx-background-color: rgba(56, 56, 56, 0.5)");
+        root.getChildren().add(this);
+        drawPauseScreen();
+    }
+    
     public void drawPauseScreen() {
-        root.getChildren().clear();
+        this.getChildren().clear();
+        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        this.resumeButton.requestFocus();
+    }
+    
+    public void drawEndScreen(String winner) {
+        Label label = new Label(winner + " wins!");
+        label.setId("winMessage");
+        
+        returnToMainMenuButton = new Button("Return to Main Menu");
+        returnToMainMenuButton.getStyleClass().add("menuButton");
+        returnToMainMenuButton.setOnMouseClicked(controller);
+        returnToMainMenuButton.setOnKeyPressed(controller);
+        
+        this.setStyle("-fx-background-color: rgba(56, 56, 56, 0.5)");
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton,
-                settingsButton, exitButton);
+        this.getChildren().addAll(menuGameTitle, label, returnToMainMenuButton);
+        
+        returnToMainMenuButton.requestFocus();
     }
     
     public Button getNewGameButton() {
@@ -188,12 +211,12 @@ public class MenuView extends VBox{
         return resumeButton;
     }
     
-    public Button getSinglePlayerButton() {
-        return singlePlayerButton;
+    public Button getVersusPlayerButton() {
+        return versusPlayerButton;
     }
     
-    public Button getMultiPlayerButton() {
-        return multiPlayerButton;
+    public Button getVersusAIButton() {
+        return versusAIButton;
     }
     
     public Button getCancelButton() {
@@ -216,6 +239,18 @@ public class MenuView extends VBox{
         return playerOneName;
     }
     
+    public Label getPlayerOneError() {
+        return playerOneError;
+    }
+    
+    public Label getPlayerTwoError() {
+        return playerTwoError;
+    }
+    
+    public Button getReturnToMainMenuButton() {
+        return returnToMainMenuButton;
+    }
+    
     private Text drawLetter(String name, Colors color) {
         Text letter = new Text(name);
         letter.setFill(color.getValue());
@@ -224,18 +259,6 @@ public class MenuView extends VBox{
     }
     
     private TextFlow drawTitle() {
-        return new TextFlow(
-                drawLetter("K", ORANGE),
-                drawLetter("A", NAVY),
-                drawLetter("M", BLUE),
-                drawLetter("I", PINK),
-                drawLetter("S", YELLOW),
-                drawLetter("A", RED),
-                drawLetter("D", GREEN),
-                drawLetter("O", BROWN));
-    }
-    
-    public void exit() {
-        stage.close();
+        return new TextFlow(drawLetter("K", Colors.ORANGE), drawLetter("A", Colors.NAVY), drawLetter("M", Colors.BLUE), drawLetter("I", Colors.PINK), drawLetter("S", Colors.YELLOW), drawLetter("A", Colors.RED), drawLetter("D", Colors.GREEN), drawLetter("O", Colors.BROWN));
     }
 }

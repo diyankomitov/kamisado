@@ -1,4 +1,4 @@
-package develop.util;
+package com.team11.kamisado.util;
 
 public interface Observer {
     

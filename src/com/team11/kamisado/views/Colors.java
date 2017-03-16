@@ -1,4 +1,4 @@
-package develop.views;
+package com.team11.kamisado.views;
 
 import javafx.scene.paint.Color;
 

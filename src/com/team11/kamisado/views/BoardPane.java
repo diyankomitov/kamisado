@@ -1,25 +1,35 @@
-package develop.views;
+package com.team11.kamisado.views;
 
-import develop.models.Board;
-import develop.util.Observer;
+import com.team11.kamisado.models.Board;
+import com.team11.kamisado.models.Towers;
+import com.team11.kamisado.util.Observer;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 
-import static develop.views.Colors.*;
+import static com.team11.kamisado.views.Colors.*;
 
 public class BoardPane extends Pane implements Observer {
     public static final int BOARD_LENGTH = 8;
+    public static final double BOARDVIEWMARGIN = 10;
     
     private SquareView[][] squares = new SquareView[BOARD_LENGTH][BOARD_LENGTH];
     private TowerView[][] towers = new TowerView[BOARD_LENGTH][BOARD_LENGTH];
     
     private Board board;
     
-    public BoardPane(Board board) {
+    public BoardPane(BorderPane parent, Board board) {
         this.board = board;
         this.board.subscribe(this);
         
-        createBoard();
+        this.prefHeightProperty().bind(parent.heightProperty().subtract(BOARDVIEWMARGIN * 2));
+        this.prefWidthProperty().bind(this.prefHeightProperty());
+        
+        drawSquares();
         drawTowers();
+    }
+    
+    public SquareView getSquare(int x, int y) {
+        return squares[y][x];
     }
     
     @Override
@@ -32,19 +42,18 @@ public class BoardPane extends Pane implements Observer {
         TowerView curTower = towers[curY][curX];
         
         SquareView newSquare = squares[newY][newX];
-        System.out.println("newY: " + newY + " New X: " + newX + "   " + newSquare.toString());
         
         curTower.setCurrentSquare(newSquare);
         towers[newY][newX] = curTower;
         towers[curY][curX] = null;
     }
     
-    private void createBoard() {
+    private void drawSquares() {
         Colors color;
         
         for(int y = 0; y < BOARD_LENGTH; y++) {
             for(int x = 0; x < BOARD_LENGTH; x++) {
-                switch(board.getSquare(x,y)) {
+                switch(board.getSquare(x, y)) {
                     case "O":
                         color = ORANGE;
                         break;
@@ -71,7 +80,7 @@ public class BoardPane extends Pane implements Observer {
                         break;
                 }
                 SquareView square = new SquareView(this, x, y, color);
-    
+                
                 squares[y][x] = square;
                 this.getChildren().add(square);
             }
@@ -79,7 +88,7 @@ public class BoardPane extends Pane implements Observer {
     }
     
     private void drawTowers() {
-        String tower;
+        Towers tower;
         Colors type;
         Colors color;
         
@@ -88,40 +97,42 @@ public class BoardPane extends Pane implements Observer {
                 this.getChildren().remove(towers[y][x]);
                 towers[y][x] = null;
                 
-                if(board.isTower(x,y)) {
+                if(board.isTower(x, y)) {
                     
-                    tower = board.getTower(x,y);
-    
-                    if(tower.startsWith("W")) {
+                    tower = board.getTower(x, y);
+                    
+                    if(tower.getType().equals("white")) {
                         type = WHITE;
                     }
                     else {
                         type = BLACK;
                     }
-    
-                    if(tower.endsWith("O")) {
-                        color = ORANGE;
-                    }
-                    else if(tower.endsWith("N")) {
-                        color = NAVY;
-                    }
-                    else if(tower.endsWith("B")) {
-                        color = BLUE;
-                    }
-                    else if(tower.endsWith("P")) {
-                        color = PINK;
-                    }
-                    else if(tower.endsWith("Y")) {
-                        color = YELLOW;
-                    }
-                    else if(tower.endsWith("R")) {
-                        color = RED;
-                    }
-                    else if(tower.endsWith("G")) {
-                        color = GREEN;
-                    }
-                    else {
-                        color = BROWN;
+                    
+                    switch(tower.getColor()) {
+                        case "orange":
+                            color = ORANGE;
+                            break;
+                        case "navy":
+                            color = NAVY;
+                            break;
+                        case "blue":
+                            color = BLUE;
+                            break;
+                        case "pink":
+                            color = PINK;
+                            break;
+                        case "yellow":
+                            color = YELLOW;
+                            break;
+                        case "red":
+                            color = RED;
+                            break;
+                        case "green":
+                            color = GREEN;
+                            break;
+                        default:
+                            color = BROWN;
+                            break;
                     }
                     
                     TowerView towerView = new TowerView(squares[y][x], color, type);

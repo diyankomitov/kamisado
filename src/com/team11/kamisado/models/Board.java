@@ -1,25 +1,24 @@
-package develop.models;
+package com.team11.kamisado.models;
 
-import develop.util.Coordinates;
-import develop.util.Observable;
-import develop.util.Observer;
+import com.team11.kamisado.util.Coordinates;
+import com.team11.kamisado.util.Observable;
+import com.team11.kamisado.util.Observer;
+import com.team11.kamisado.views.BoardPane;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static develop.views.BoardPane.BOARD_LENGTH;
-
 public class Board implements Observable {
     private List<Observer> observers;
     private String currentSquare;
-    private String currentPlayer;
+    private String currentPlayerColor;
     
     private Coordinates currentCoordinates;
     private Coordinates moveCoordinates;
     private List<Coordinates> validCoordinates;
     
     private String[][] squareArray;
-    private String[][] towerArray;
+    private Towers[][] towerArray;
     
     private boolean hasWon;
     
@@ -33,54 +32,84 @@ public class Board implements Observable {
                                      {"B", "Br", "Y", "N", "G", "P", "O", "R"},
                                      {"Br", "G", "R", "Y", "P", "B", "N", "O"}};
         
-        towerArray = new String[][]{{"BO", "BN", "BB", "BP", "BY", "BR", "BG", "BBr"},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"", "", "", "", "", "", "", ""},
-                                    {"WBr", "WG", "WR", "WY", "WP", "WB", "WN", "WO"}};
-        
-        currentPlayer = "B";
+        towerArray = new Towers[][]{
+            {Towers.BLACKORANGE, Towers.BLACKNAVY, Towers.BLACKBLUE, Towers.BLACKPINK, Towers.BLACKYELLOW, Towers.BLACKRED, Towers.BLACKGREEN, Towers.BLACKBROWN},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
+            {Towers.WHITEBROWN, Towers.WHITEGREEN, Towers.WHITERED, Towers.WHITEYELLOW, Towers.WHITEPINK, Towers.WHITEBLUE, Towers.WHITENAVY, Towers.WHITEORANGE}};
+    
         currentCoordinates = new Coordinates();
         moveCoordinates = new Coordinates();
         validCoordinates = new ArrayList<>();
         hasWon = false;
-        
+        currentPlayerColor = "B";
+    
         observers = new ArrayList<>();
     }
     
-    public String getCurrentPlayer() {
-        return currentPlayer;
+    public void move(int x, int y) {
+        moveCoordinates.setCoordinates(x, y);
+        
+        int curX = currentCoordinates.getX();
+        int curY = currentCoordinates.getY();
+        
+        towerArray[y][x] = towerArray[curY][curX];
+        towerArray[curY][curX] = Towers.EMPTY;
+        
+        notifyAllObservers();
+        
+        if(currentPlayerColor.equals("W") && moveCoordinates.getY() == 0 || currentPlayerColor.equals("B") && moveCoordinates.getY() == BoardPane.BOARD_LENGTH - 1) {
+            hasWon = true;
+        }
+    }
+    
+    public void setCurrentTower() {
+        for(int y = 0; y < 8; y++) {
+            for(int x = 0; x < 8; x++) {
+                if(towerArray[y][x].getAbbreviation().equals(currentPlayerColor + currentSquare)) {
+                    currentCoordinates.setCoordinates(x, y);
+                }
+            }
+        }
+    }
+    
+    public void setCurrentSquare(int x, int y) {
+        this.currentSquare = squareArray[y][x];
+    }
+    
+    public void switchCurrentPlayerColor() {
+        if(currentPlayerColor.equals("W")) {
+            currentPlayerColor = "B";
+        }
+        else {
+            currentPlayerColor = "W";
+        }
     }
     
     public boolean hasWon() {
         return hasWon;
     }
     
-    public void printTowers() {
-        for(int i = 0; i < 8; i++) {
-            for(int j = 0; j < 8; j++) {
-                System.out.print(towerArray[i][j] + " | ");
-            }
-            System.out.println();
-            System.out.println("--------------------------------");
-        }
+    public boolean areValidCoordinates(int x, int y) {
+        return validCoordinates.contains(new Coordinates(x, y));
     }
     
-    public void setValidCoordinates() {
+    public boolean setValidCoordinates() {
         validCoordinates.clear();
         
         int dX = 0;
-        int dY = currentPlayer.equals("B") ? 1 : -1;
+        int dY = currentPlayerColor.equals("B") ? 1 : -1;
         int x = currentCoordinates.getX() + dX;
         
         boolean canAddForward = true;
         boolean canAddDiagPos = true;
         boolean canAddDiagNeg = true;
         
-        for(int i = 1; i < BOARD_LENGTH; i++) {
+        for(int i = 1; i < BoardPane.BOARD_LENGTH; i++) {
             int y = currentCoordinates.getY() + i * dY;
             
             dX = 0;
@@ -98,6 +127,9 @@ public class Board implements Observable {
                 canAddDiagNeg = false;
             }
         }
+        
+        return validCoordinates.size() != 0;
+        
     }
     
     private boolean addToValidCoordinatesList(boolean add, int x, int y) {
@@ -110,20 +142,16 @@ public class Board implements Observable {
         }
     }
     
-    public boolean isValidCoordinate(int x, int y) {
-        return validCoordinates.contains(new Coordinates(x, y));
-    }
-    
     public boolean isTower(int x, int y) {
         try {
-            return !towerArray[y][x].equals("");
+            return !towerArray[y][x].equals(Towers.EMPTY);
         }
         catch(IndexOutOfBoundsException e) {
             return true;
         }
     }
     
-    public String getTower(int x, int y) {
+    public Towers getTower(int x, int y) {
         return towerArray[y][x];
     }
     
@@ -137,50 +165,6 @@ public class Board implements Observable {
     
     public Coordinates getCurrentCoordinates() {
         return currentCoordinates;
-    }
-    
-    public void move(int x, int y) {
-        moveCoordinates.setCoordinates(x, y);
-        
-        int curX = currentCoordinates.getX();
-        int curY = currentCoordinates.getY();
-        
-        towerArray[y][x] = towerArray[curY][curX];
-        towerArray[curY][curX] = "";
-        
-        notifyAllObservers();
-        
-        if(currentPlayer.equals("W") && moveCoordinates.getY() == 0 ||
-                currentPlayer.equals("B") && moveCoordinates.getY() == BOARD_LENGTH - 1) {
-            hasWon = true;
-            System.out.println("hasWon changed");
-        }
-        
-        //TODO remove printtowers
-        printTowers();
-    }
-    
-    public void setCurrentTower() {
-        for(int y = 0; y < 8; y++) {
-            for(int x = 0; x < 8; x++) {
-                if(towerArray[y][x].equals(currentPlayer + currentSquare)) {
-                    currentCoordinates.setCoordinates(x, y);
-                }
-            }
-        }
-    }
-    
-    public void setCurrentSquare(int x, int y) {
-        this.currentSquare = squareArray[y][x];
-    }
-    
-    public void switchCurrentPlayer() {
-        if(currentPlayer.equals("W")) {
-            currentPlayer = "B";
-        }
-        else {
-            currentPlayer = "W";
-        }
     }
     
     @Override
