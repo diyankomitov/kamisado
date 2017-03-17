@@ -1,54 +1,84 @@
 package com.team11.kamisado.controllers;
 
 import com.team11.kamisado.models.Board;
-import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.views.GameView;
-import javafx.animation.AnimationTimer;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.effect.GaussianBlur;
+import javafx.util.Duration;
 
-public class GameController extends AnimationTimer {
-    
-    private static final int BLURRADIUS = 63;
-    
-    private MenuController menuController;
+/**
+ * Created by Diyan on 17/03/2017.
+ */
+public class SpeedGameController extends GameController {
+    private static final int STARTTIME = 5;
+    private static final double BLURRADIUS = 63;
+    private final Timeline timeline;
+    private IntegerProperty timeSeconds;
     private GameView view;
+    private MenuController menuController;
+    private int y;
+    private int x;
+    private boolean firstMove;
     private Board board;
     private Player playerOne;
-    private Player playerTwo;
     private Player currentPlayer;
-    private int x;
-    private int y;
-    private boolean firstMove;
+    private Player playerTwo;
     
-    public GameController(MenuController menuController, GameView gameView, Board board, Player playerOne, Player playerTwo) {
+    public SpeedGameController(MenuController menuController, GameView gameView, Board board, Player playerOne, Player playerTwo) {
+        super(menuController, gameView, board, playerOne, playerTwo);
+        
+        this.view = gameView;
         this.menuController = menuController;
+        this.firstMove = true;
+        this.board = board;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.currentPlayer = playerOne;
-        this.firstMove = true;
-        this.board = board;
         
-        this.view = gameView;
-        view.setBoard(board);
-        view.initGameView();
-        view.setNames(playerOne.getName(), playerTwo.getName());
-        view.setMessage(false, "Welcome to Kamisado!\n'" + playerOne.getName() + "' please select a black tower to move");
+        
+        timeSeconds = new SimpleIntegerProperty(STARTTIME);
+        
+        gameView.drawTimer(timeSeconds);
+        
+        timeSeconds.set(STARTTIME);
+        
+        timeline = new Timeline();
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.getKeyFrames().add(
+                new KeyFrame(Duration.seconds(STARTTIME+1),
+                        new KeyValue(timeSeconds, 0)));
+        timeline.playFromStart();
+        
+        System.out.println(timeSeconds.toString());
     }
     
+    @Override
     public void setActiveController() {
         view.drawGameView();
         view.setEffect(null);
         view.requestFocus();
         this.start();
+        timeline.play();
     }
     
+    @SuppressWarnings("Duplicates")
     @Override
     public void handle(long now) {
+        if(timeSeconds.getValue() <= 0) {
+            winGame(currentPlayer == playerOne ? playerTwo : playerOne);
+        }
         view.requestFocus();
         view.setOnKeyPressed(event -> {
             switch(event.getCode()) {
                 case ESCAPE: {
+                    timeline.pause();
                     menuController.pause();
                     view.setEffect(new GaussianBlur(BLURRADIUS));
                     break;
@@ -86,6 +116,7 @@ public class GameController extends AnimationTimer {
                             board.setValidCoordinates();
                             firstMove = false;
                             view.setMessage(false, "Now please choose a square to move to");
+                            restartTimer();
                         }
                         else {
                             view.setMessage(true, "That is not a black tower '" + playerOne.getName() + "'.\nPlease select a black tower to move");
@@ -120,21 +151,23 @@ public class GameController extends AnimationTimer {
                         }
                         view.moveSelector(x, y);
                         view.switchSquareBorder(x,y);
+                        restartTimer();
                     }
             }
         });
     }
     
-    public void updateBoard() {
-        board.switchCurrentPlayerColor();
-        currentPlayer = currentPlayer == playerOne ? playerTwo : playerOne;
-        board.setCurrentSquare(x, y);
-        board.setCurrentTower();
-        x = board.getCurrentCoordinates().getX();
-        y = board.getCurrentCoordinates().getY();
+    private void restartTimer() {
+        timeline.stop();
+        timeSeconds.set(5);
+        timeline.playFromStart();
     }
     
     public void winGame(Player winner) {
-        su
+        this.stop();
+        timeline.stop();
+        view.setEffect(new GaussianBlur(BLURRADIUS));
+        view.stopFadeTransition();
+        menuController.win(winner.getName());
     }
 }
