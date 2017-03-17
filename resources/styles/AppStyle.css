@@ -1,0 +1,149 @@
+.root {
+    -fx-font-family: Akashi;
+}
+
+/* Main Menu Styling */
+
+#menuView {
+    -fx-background-color: #383838;
+    -fx-alignment: baseline-center;
+    -fx-fill-width: false;
+    -fx-padding: 250,0,0,0;
+    -fx-spacing: 50;
+}
+
+#gameTitle {
+    -fx-font-size: 160;
+    -fx-text-alignment: center;
+}
+
+.titleLetter {
+    -fx-stroke: black;
+    -fx-stroke-width: 10px;
+}
+
+.menuButton {
+    -fx-font-size: 30;
+    -fx-pref-width: 500px;
+    -fx-pref-height: 50px;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+}
+
+.menuButton:hover {
+    -fx-background-color: #4e4e4e;
+}
+
+.menuButton:armed {
+    -fx-background-color: #242424;
+}
+
+.menuButton:focused {
+    -fx-text-fill: #025391;
+    -fx-spacing: 0;
+}
+
+/* Enter Name Screen Styling */
+#namesWrapper {
+    -fx-spacing: 10;
+}
+
+.nameBox {
+    -fx-spacing: 10;
+    -fx-alignment: center
+}
+
+.nameLabel {
+    -fx-font-size: 26;
+    -fx-text-fill: #707070;
+}
+
+.nameField {
+    -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
+    -fx-font-size: 30;
+    -fx-max-width: 500;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+    -fx-alignment: center
+}
+
+.nameError {
+    -fx-font-size: 12;
+    -fx-text-fill: red;
+}
+
+#buttonsWrapper {
+    -fx-alignment: center-right;
+    -fx-spacing: 10;
+}
+
+.nameButton {
+    -fx-font-size: 30;
+    -fx-pref-width: 200px;
+    -fx-background-color: #707070;
+    -fx-text-fill: white;
+}
+.nameButton:hover {
+    -fx-background-color: #4e4e4e;
+}
+
+.nameButton:armed {
+    -fx-background-color: #242424;
+}
+
+.nameButton:focused {
+    -fx-text-fill: #025391;
+    -fx-spacing: 0;
+}
+
+/* Game screen styling */
+
+#gameView {
+    -fx-background-color: #383838;
+}
+
+#sidebar {
+    -fx-background-color: #646464;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+    -fx-alignment: center;
+}
+
+#namesLabel {
+    -fx-font-size: 32px;
+    -fx-text-fill: white;
+}
+
+.playerNameLabel {;
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}
+
+#message {
+    -fx-font-size: 30px;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}
+
+#errorMessage {
+    -fx-font-size: 30px;
+    -fx-text-fill: red;
+    -fx-text-alignment: center;
+}
+
+
+#endScreen {
+    -fx-background-color: rgba(56, 56, 56, 0.5);
+    -fx-alignment: center;
+    -fx-pref-width: 300;
+    -fx-pref-height: 300;
+}
+
+#winMessage {
+    -fx-font-size: 80px;
+    -fx-text-fill: linear-gradient(to right, rgba(232,106,38,1) 0%, rgba(232,106,38,1) 5%, rgba(3,83,145,1) 17%, rgba(111,195,171,1) 31%, rgba(228,58,129,1) 42%, rgba(250,217,5,1) 52%, rgba(191,34,39,1) 63%, rgba(1,142,74,1) 76%, rgba(61,39,31,1) 89%, rgba(61,39,31,1) 100%);
+}
+#winMessage .text {
+    -fx-stroke: black;
+    -fx-stroke-width: 1px;
+}
