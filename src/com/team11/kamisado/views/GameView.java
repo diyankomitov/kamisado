@@ -3,6 +3,7 @@ package com.team11.kamisado.views;
 import com.team11.kamisado.models.Board;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.beans.property.IntegerProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -22,6 +23,8 @@ public class GameView extends BorderPane {
     private Label messageLabel;
     private SquareView current;
     private Label namesLabel;
+    private VBox sidebar;
+    private Label timer;
     
     public GameView(StackPane root) {
         this.root = root;
@@ -69,13 +72,20 @@ public class GameView extends BorderPane {
         messageLabel = new Label();
         messageLabel.setId("message");
         messageLabel.setWrapText(true);
-        
-        VBox sidebar = new VBox(namesLabel, messageLabel);
+        timer = new Label("5");
+        timer.setId("timer");
+    
+        sidebar = new VBox(namesLabel, messageLabel);
         sidebar.setId("sidebar");
         BorderPane.setMargin(sidebar, new Insets(BoardPane.BOARDVIEWMARGIN));
         
         this.setLeft(boardPane);
         this.setCenter(sidebar);
+    }
+    
+    public void drawTimer(IntegerProperty timeSeconds) {
+        sidebar.getChildren().add(timer);
+        timer.textProperty().bind(timeSeconds.asString());
     }
     
     public void setNames(String playerOne, String playerTwo) {

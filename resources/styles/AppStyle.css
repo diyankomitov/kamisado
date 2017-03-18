@@ -13,17 +13,17 @@
 }
 
 #gameTitle {
-    -fx-font-size: 160;
+    -fx-font-size: 15em;
     -fx-text-alignment: center;
 }
 
 .titleLetter {
     -fx-stroke: black;
-    -fx-stroke-width: 10px;
+    -fx-stroke-width: 0.8em;
 }
 
 .menuButton {
-    -fx-font-size: 30;
+    -fx-font-size: 3.4em;
     -fx-pref-width: 500px;
     -fx-pref-height: 50px;
     -fx-background-color: #707070;
@@ -131,6 +131,11 @@
     -fx-text-alignment: center;
 }
 
+#timer {
+    -fx-font-size: 30px;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}
 
 #endScreen {
     -fx-background-color: rgba(56, 56, 56, 0.5);

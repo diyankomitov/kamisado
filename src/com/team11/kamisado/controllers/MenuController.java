@@ -20,10 +20,12 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean isPaused;
     private String pTwoName;
     private String pOneName;
+    private boolean isSpeed;
     
     public MenuController(KamisadoApp application) {
         this.application = application;
         isPaused = false;
+        isSpeed = false;
     }
     
     public void addView(MenuView view) {
@@ -52,7 +54,7 @@ public class MenuController implements EventHandler<InputEvent> {
                 application.getStage().close();
             }
             else if(source.equals(view.getVersusPlayerButton())) {
-                view.drawEnterNameScreen();
+                view.drawSpeedSelectScreen();
             }
             else if(source.equals(view.getCancelButton())) {
                 if(isPaused) {
@@ -62,16 +64,29 @@ public class MenuController implements EventHandler<InputEvent> {
                     view.drawMainMenu();
                 }
             }
+            else if(source.equals(view.getNormalGameButton())) {
+                isSpeed = false;
+                view.drawEnterNameScreen();
+            }
+            else if(source.equals(view.getSpeedGameButton())) {
+                isSpeed = true;
+                view.drawEnterNameScreen();
+            }
+            
             else if(source.equals(view.getPlayButton())) {
-                
+    
                 Player playerOne = new Player(view.getPlayerOneName().getText(), "B");
                 Player playerTwo = new Player(view.getPlayerTwoName().getText(), "W");
-                
+    
                 Board board = new Board();
                 GameView gameView = new GameView(application.getRoot());
-                gameController = new GameController(this, gameView, board, playerOne, playerTwo);
+                if(isSpeed) {
+                    gameController = new SpeedGameController(this, gameView, board, playerOne, playerTwo);
+                }
+                else {
+                    gameController = new GameController(this, gameView, board, playerOne, playerTwo);
+                }
                 gameController.setActiveController();
-                gameController.start();
             }
             else if(source.equals(view.getPlayerOneName())) {
                 pOneName = view.getPlayerOneName().getText().trim();
@@ -117,7 +132,6 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     public void pause() {
-        gameController.stop();
         isPaused = true;
         view.initPauseScreen();
     }

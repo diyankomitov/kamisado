@@ -37,6 +37,8 @@ public class MenuView extends VBox {
     
     private EventHandler<InputEvent> controller;
     private Button returnToMainMenuButton;
+    private Button normalGameButton;
+    private Button speedGameButton;
     
     public MenuView(StackPane root, EventHandler<InputEvent> controller) {
         this.root = root;
@@ -77,6 +79,16 @@ public class MenuView extends VBox {
         versusPlayerButton.getStyleClass().add("menuButton");
         versusPlayerButton.setOnMouseClicked(controller);
         versusPlayerButton.setOnKeyPressed(controller);
+        
+        normalGameButton = new Button("Normal Game");
+        normalGameButton.getStyleClass().add("menuButton");
+        normalGameButton.setOnMouseClicked(controller);
+        normalGameButton.setOnKeyPressed(controller);
+       
+        speedGameButton = new Button("Speed Game");
+        speedGameButton.getStyleClass().add("menuButton");
+        speedGameButton.setOnMouseClicked(controller);
+        speedGameButton.setOnKeyPressed(controller);
         
         versusAIButton = new Button("Versus AI");
         versusAIButton.getStyleClass().add("menuButton");
@@ -151,6 +163,11 @@ public class MenuView extends VBox {
     public void drawSelectModeScreen() {
         this.getChildren().clear();
         this.getChildren().addAll(menuGameTitle, versusPlayerButton, versusAIButton, cancelButton);
+    }
+    
+    public void drawSpeedSelectScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(menuGameTitle, normalGameButton, speedGameButton, cancelButton);
     }
     
     public void drawEnterNameScreen() {
@@ -249,6 +266,14 @@ public class MenuView extends VBox {
     
     public Button getReturnToMainMenuButton() {
         return returnToMainMenuButton;
+    }
+    
+    public Button getNormalGameButton() {
+        return normalGameButton;
+    }
+    
+    public Button getSpeedGameButton() {
+        return speedGameButton;
     }
     
     private Text drawLetter(String name, Colors color) {
