@@ -102,7 +102,7 @@ public class GameView extends BorderPane {
             messageLabel.setId("errorMessage");
         }
         else {
-            messageLabel.getStyleClass().add("message");
+            messageLabel.setId("message");
         }
         messageLabel.setText(message);
     }

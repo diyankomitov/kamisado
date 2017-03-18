@@ -65,6 +65,7 @@ public class MenuController implements EventHandler<InputEvent> {
                 }
             }
             else if(source.equals(view.getNormalGameButton())) {
+                isSpeed = false;
                 view.drawEnterNameScreen();
             }
             else if(source.equals(view.getSpeedGameButton())) {
@@ -86,7 +87,6 @@ public class MenuController implements EventHandler<InputEvent> {
                     gameController = new GameController(this, gameView, board, playerOne, playerTwo);
                 }
                 gameController.setActiveController();
-                gameController.start();
             }
             else if(source.equals(view.getPlayerOneName())) {
                 pOneName = view.getPlayerOneName().getText().trim();
@@ -132,7 +132,6 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     public void pause() {
-        gameController.stop();
         isPaused = true;
         view.initPauseScreen();
     }
