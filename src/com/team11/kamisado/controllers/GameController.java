@@ -101,7 +101,7 @@ public class GameController implements Observable{
                 view.setCurrent(x,y);
                 board.setCurrentTower();
                 board.setValidCoordinates();
-                board.setFirstMove(false);
+                board.setFirstMoveToFalse();
                 view.setMessage(false, "Now please choose a square to move to");
             }
             else {

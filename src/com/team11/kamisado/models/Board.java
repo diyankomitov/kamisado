@@ -57,10 +57,6 @@ public class Board implements Serializable{
         this.firstMove = true;
     }
     
-    public List<Coordinates> getValidCoordinate() {
-        return validCoordinates;
-    }
-    
     public void move(int x, int y) {
         moveCoordinates.setCoordinates(x, y);
         
@@ -192,7 +188,7 @@ public class Board implements Serializable{
         return firstMove;
     }
     
-    public void setFirstMove(boolean firstMove) {
-        this.firstMove = firstMove;
+    public void setFirstMoveToFalse() {
+        this.firstMove = false;
     }
 }

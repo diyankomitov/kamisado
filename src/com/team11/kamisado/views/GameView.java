@@ -117,18 +117,6 @@ public class GameView extends BorderPane {
         }
     }
     
-//    public void switchSquareBorder() {
-//        if(current == null) {
-//            current = boardPane.getSquare(x, y);
-//            current.setStroke(Colors.TRUEWHITE.getValue());
-//        }
-//        else {
-//            current.setStroke(Colors.TRUEBLACK.getValue());
-//            current = boardPane.getSquare(x, y);
-//            current.setStroke(Colors.TRUEWHITE.getValue());
-//        }
-//    }
-    
     public void moveSelector(int x, int y) {
         fadeTransition.stop();
         selector.moveSquare(x, y);
