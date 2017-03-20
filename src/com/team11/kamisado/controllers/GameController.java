@@ -2,51 +2,60 @@ package com.team11.kamisado.controllers;
 
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.util.Observable;
+import com.team11.kamisado.util.Observer;
 import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.views.GameView;
-import javafx.scene.effect.GaussianBlur;
 
-public class GameController {
+import javafx.scene.effect.GaussianBlur;
+import java.util.ArrayList;
+import java.util.List;
+
+public class GameController implements Observable{
     
     private static final int BLUR_RADIUS = 63;
     
     private MenuController menuController;
     private GameView view;
     private Board board;
-    private Player playerOne;
-    private Player playerTwo;
-    private Player currentPlayer;
     private int x;
     private int y;
-    private boolean firstMove;
+    private List<Observer> observers;
     
-    public GameController(MenuController menuController, GameView gameView, Board board, Player playerOne, Player playerTwo) {
+    public GameController(MenuController menuController, GameView gameView, Board board) {
         this.menuController = menuController;
         this.board = board;
-        this.playerOne = playerOne;
-        this.playerTwo = playerTwo;
-        this.currentPlayer = playerOne;
-        this.firstMove = true;
-        
+    
         this.view = gameView;
         view.setBoard(board);
         view.initGameView();
-        view.setNames(playerOne.getName(), playerTwo.getName());
-        view.setMessage(false, "Welcome to Kamisado!\n'" + playerOne.getName() + "' please select a black tower to move");
+        view.setNames(board.getPlayerOne().getName(), board.getPlayerTwo().getName());
+        view.setMessage(false, "Welcome to Kamisado!\n'" + board.getCurrentPlayer().getName() + "' please " +
+                "select a black tower to move");
+        this.observers = new ArrayList<>();
+        this.subscribe(view.getBoardPane());
+        
+        
+        if(!board.isFirstMove()) {
+            x = board.getCurrentCoordinates().getX();
+            y = board.getCurrentCoordinates().getY();
+            view.setCurrent(x,y);
+            view.moveSelector(x,y);
+        }
     }
     
     public void setActiveController() {
         view.drawGameView();
         view.setEffect(null);
         view.requestFocus();
-        handleKeyPressed();
+        this.handleKeyPressed();
     }
     
     private void handleKeyPressed() {
         view.setOnKeyPressed(event -> {
             switch(event.getCode()) {
                 case ESCAPE: {
-                    onEscape();
+                    this.onEscape();
                     break;
                 }
                 case UP:
@@ -74,7 +83,7 @@ public class GameController {
                     view.moveSelector(x, y);
                     break;
                 case ENTER:
-                    onEnter();
+                    this.onEnter();
                     break;
             }
         });
@@ -86,22 +95,25 @@ public class GameController {
     }
     
     public void onEnter() {
-        if(firstMove) {
+        if(board.isFirstMove()) {
             if(y == 0) {
                 board.setCurrentSquare(x, y);
-                view.switchSquareBorder(x, y);
+                view.setCurrent(x,y);
                 board.setCurrentTower();
                 board.setValidCoordinates();
-                firstMove = false;
+                board.setFirstMove(false);
                 view.setMessage(false, "Now please choose a square to move to");
             }
             else {
-                view.setMessage(true, "That is not a black tower '" + playerOne.getName() + "'.\nPlease select a black tower to move");
+                view.setMessage(true, "That is not a black tower '" + board.getCurrentPlayer().getName() + "'" +
+                        ".\nPlease " +
+                        "select a black tower to move");
             }
         }
         else {
             if(board.areValidCoordinates(x, y)) {
                 board.move(x, y);
+                this.notifyAllObservers();
             }
             else {
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
@@ -109,25 +121,28 @@ public class GameController {
             }
         
             if(board.hasWon()) {
-                winGame(currentPlayer);
+                this.winGame(board.getCurrentPlayer());
                 return;
             }
         
-            updateBoard();
+            this.updateBoard();
         
-            view.setMessage(false, "'" + currentPlayer.getName() + "' you are now on turn\nplease select a square to move to");
+            view.setMessage(false, "'" + board.getCurrentPlayer().getName() + "' you are now on turn\nplease " +
+                    "select a " +
+                    "square to move to");
         
             if(!board.setValidCoordinates()) {
-                updateBoard();
+                this.updateBoard();
             
                 if(!board.setValidCoordinates()) {
-                    winGame(currentPlayer == playerOne ? playerTwo : playerOne);
+                    this.winGame(board.getOtherPlayer());
                 }
             
-                view.setMessage(true, "'" + currentPlayer.getName() + "' it is your turn again since your opponent had no valid moves.\nPlease select a square to move to.");
+                view.setMessage(true, "'" + board.getCurrentPlayer().getName() + "' it is your turn again since " +
+                        "your " +
+                        "opponent had no valid moves.\nPlease select a square to move to.");
             }
-            view.moveSelector(x, y);
-            view.switchSquareBorder(x, y);
+            view.setCurrent(x,y);
         }
     }
     
@@ -138,11 +153,30 @@ public class GameController {
     }
     
     private void updateBoard() {
-        board.switchCurrentPlayerColor();
-        currentPlayer = currentPlayer == playerOne ? playerTwo : playerOne;
+        board.switchCurrentPlayer();
         board.setCurrentSquare(x, y);
         board.setCurrentTower();
         x = board.getCurrentCoordinates().getX();
         y = board.getCurrentCoordinates().getY();
+    }
+    
+    public Board getBoard() {
+        return board;
+    }
+    
+    public void subscribe(Observer observer) {
+        observers.add(observer);
+    }
+    
+    @Override
+    public void unsubscribe(Observer observer) {
+        observers.remove(observer);
+    }
+    
+    @Override
+    public void notifyAllObservers() {
+        for(Observer observer : observers) {
+            observer.update();
+        }
     }
 }

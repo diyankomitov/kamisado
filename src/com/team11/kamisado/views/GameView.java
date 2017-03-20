@@ -35,16 +35,8 @@ public class GameView extends BorderPane {
         this.board = board;
     }
     
-    public void switchSquareBorder(int x, int y) {
-        if(current == null) {
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-        }
-        else {
-            current.setStroke(Colors.TRUEBLACK.getValue());
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-        }
+    public BoardPane getBoardPane() {
+        return boardPane;
     }
     
     public void initGameView() {
@@ -107,13 +99,39 @@ public class GameView extends BorderPane {
         messageLabel.setText(message);
     }
     
+    public void stopFadeTransition() {
+        fadeTransition.stop();
+    }
+    
+    public void setCurrent(int x, int y) {
+        if(current == null) {
+            current = boardPane.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            moveSelector(x,y);
+        }
+        else {
+            current.setStroke(Colors.TRUEBLACK.getValue());
+            current = boardPane.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            moveSelector(x,y);
+        }
+    }
+    
+//    public void switchSquareBorder() {
+//        if(current == null) {
+//            current = boardPane.getSquare(x, y);
+//            current.setStroke(Colors.TRUEWHITE.getValue());
+//        }
+//        else {
+//            current.setStroke(Colors.TRUEBLACK.getValue());
+//            current = boardPane.getSquare(x, y);
+//            current.setStroke(Colors.TRUEWHITE.getValue());
+//        }
+//    }
+    
     public void moveSelector(int x, int y) {
         fadeTransition.stop();
         selector.moveSquare(x, y);
         fadeTransition.play();
-    }
-    
-    public void stopFadeTransition() {
-        fadeTransition.stop();
     }
 }

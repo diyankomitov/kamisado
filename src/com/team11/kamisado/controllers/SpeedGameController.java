@@ -15,21 +15,19 @@ public class SpeedGameController extends GameController {
     private final Timeline timeline;
     private IntegerProperty timeSeconds;
     private boolean firstMove;
-    private Player currentPlayer;
     
-    public SpeedGameController(MenuController menuController, GameView gameView, Board board, Player playerOne, Player playerTwo) {
-        super(menuController, gameView, board, playerOne, playerTwo);
+    public SpeedGameController(MenuController menuController, GameView gameView, Board board, int currentTime) {
+        super(menuController, gameView, board);
         
-        this.firstMove = true;
-        this.currentPlayer = playerOne;
+        this.firstMove = board.isFirstMove();
         
-        timeSeconds = new SimpleIntegerProperty(TIME_LIMIT);
+        timeSeconds = new SimpleIntegerProperty(currentTime);
         gameView.drawTimer(timeSeconds);
         
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), actionEvent -> {
             timeSeconds.set(timeSeconds.getValue() - 1);
             if(timeSeconds.getValue() <= 0) {
-                winGame(currentPlayer == playerOne ? playerTwo : playerOne);
+                winGame(board.getOtherPlayer());
             }
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -60,6 +58,10 @@ public class SpeedGameController extends GameController {
     public void winGame(Player winner) {
         timeline.stop();
         super.winGame(winner);
+    }
+    
+    public int getCurrentTime() {
+        return timeSeconds.getValue();
     }
     
     private void restartTimer() {

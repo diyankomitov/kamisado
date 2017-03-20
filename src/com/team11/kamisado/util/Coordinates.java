@@ -1,11 +1,12 @@
 package com.team11.kamisado.util;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 /**
  * Created by Diyan on 09/03/2017.
  */
-public class Coordinates {
+public class Coordinates implements Serializable{
     private int x;
     private int y;
     

@@ -12,6 +12,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
+import java.io.File;
+
 public class MenuView extends VBox {
     
     private static final double INITIALFONTSIZE = 10;
@@ -157,7 +159,13 @@ public class MenuView extends VBox {
         root.getChildren().clear();
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, newGameButton, leaderboardButton, settingsButton, exitButton);
+        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton,
+                settingsButton, exitButton);
+    
+        File file = new File("saves/resume.ser");
+        if(!file.exists()) {
+            resumeButton.setDisable(true);
+        }
     }
     
     public void drawSelectModeScreen() {
@@ -188,6 +196,7 @@ public class MenuView extends VBox {
     public void drawPauseScreen() {
         this.getChildren().clear();
         this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        resumeButton.setDisable(false);
         this.resumeButton.requestFocus();
     }
     

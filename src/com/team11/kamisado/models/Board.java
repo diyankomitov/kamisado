@@ -1,17 +1,20 @@
 package com.team11.kamisado.models;
 
 import com.team11.kamisado.util.Coordinates;
-import com.team11.kamisado.util.Observable;
-import com.team11.kamisado.util.Observer;
 import com.team11.kamisado.views.BoardPane;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Board implements Observable {
-    private List<Observer> observers;
+import static com.team11.kamisado.models.Towers.*;
+
+public class Board implements Serializable{
+    private Player playerOne;
+    private Player playerTwo;
+    private Player currentPlayer;
+    
     private String currentSquare;
-    private String currentPlayerColor;
     
     private Coordinates currentCoordinates;
     private Coordinates moveCoordinates;
@@ -20,35 +23,42 @@ public class Board implements Observable {
     private String[][] squareArray;
     private Towers[][] towerArray;
     
+    private boolean firstMove;
     private boolean hasWon;
     
-    public Board() {
-        squareArray = new String[][]{{"O", "N", "B", "P", "Y", "R", "G", "Br"},
-                                     {"R", "O", "P", "G", "N", "Y", "Br", "B"},
-                                     {"G", "P", "O", "R", "B", "Br", "Y", "N"},
-                                     {"P", "B", "N", "O", "Br", "G", "R", "Y"},
-                                     {"Y", "R", "G", "Br", "O", "N", "B", "P"},
-                                     {"N", "Y", "Br", "B", "R", "O", "P", "G"},
-                                     {"B", "Br", "Y", "N", "G", "P", "O", "R"},
-                                     {"Br", "G", "R", "Y", "P", "B", "N", "O"}};
+    public Board(Player playerOne, Player playerTwo) {
+        this.squareArray = new String[][]{{"O", "N", "B", "P", "Y", "R", "G", "Br"},
+                                          {"R", "O", "P", "G", "N", "Y", "Br", "B"},
+                                          {"G", "P", "O", "R", "B", "Br", "Y", "N"},
+                                          {"P", "B", "N", "O", "Br", "G", "R", "Y"},
+                                          {"Y", "R", "G", "Br", "O", "N", "B", "P"},
+                                          {"N", "Y", "Br", "B", "R", "O", "P", "G"},
+                                          {"B", "Br", "Y", "N", "G", "P", "O", "R"},
+                                          {"Br", "G", "R", "Y", "P", "B", "N", "O"}};
         
-        towerArray = new Towers[][]{
-            {Towers.BLACKORANGE, Towers.BLACKNAVY, Towers.BLACKBLUE, Towers.BLACKPINK, Towers.BLACKYELLOW, Towers.BLACKRED, Towers.BLACKGREEN, Towers.BLACKBROWN},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY, Towers.EMPTY},
-            {Towers.WHITEBROWN, Towers.WHITEGREEN, Towers.WHITERED, Towers.WHITEYELLOW, Towers.WHITEPINK, Towers.WHITEBLUE, Towers.WHITENAVY, Towers.WHITEORANGE}};
+        this.towerArray = new Towers[][]{
+            {BLACKORANGE, BLACKNAVY, BLACKBLUE, BLACKPINK, BLACKYELLOW, BLACKRED, BLACKGREEN, BLACKBROWN},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
+            {WHITEBROWN, WHITEGREEN, WHITERED, WHITEYELLOW, WHITEPINK, WHITEBLUE, WHITENAVY, WHITEORANGE}
+        };
     
-        currentCoordinates = new Coordinates();
-        moveCoordinates = new Coordinates();
-        validCoordinates = new ArrayList<>();
-        hasWon = false;
-        currentPlayerColor = "B";
+        this.currentCoordinates = new Coordinates();
+        this.moveCoordinates = new Coordinates();
+        this.validCoordinates = new ArrayList<>();
+        this.hasWon = false;
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
+        this.currentPlayer = playerOne;
+        this.firstMove = true;
+    }
     
-        observers = new ArrayList<>();
+    public List<Coordinates> getValidCoordinate() {
+        return validCoordinates;
     }
     
     public void move(int x, int y) {
@@ -58,11 +68,11 @@ public class Board implements Observable {
         int curY = currentCoordinates.getY();
         
         towerArray[y][x] = towerArray[curY][curX];
-        towerArray[curY][curX] = Towers.EMPTY;
+        towerArray[curY][curX] = EMPTY;
         
-        notifyAllObservers();
-        
-        if(currentPlayerColor.equals("W") && moveCoordinates.getY() == 0 || currentPlayerColor.equals("B") && moveCoordinates.getY() == BoardPane.BOARD_LENGTH - 1) {
+        if(currentPlayer.getPlayerColor().equals("W") && moveCoordinates.getY() == 0 ||
+                currentPlayer.getPlayerColor().equals
+                ("B") && moveCoordinates.getY() == BoardPane.BOARD_LENGTH - 1) {
             hasWon = true;
         }
     }
@@ -70,7 +80,7 @@ public class Board implements Observable {
     public void setCurrentTower() {
         for(int y = 0; y < 8; y++) {
             for(int x = 0; x < 8; x++) {
-                if(towerArray[y][x].getAbbreviation().equals(currentPlayerColor + currentSquare)) {
+                if(towerArray[y][x].getAbbreviation().equals(currentPlayer.getPlayerColor() + currentSquare)) {
                     currentCoordinates.setCoordinates(x, y);
                 }
             }
@@ -81,13 +91,8 @@ public class Board implements Observable {
         this.currentSquare = squareArray[y][x];
     }
     
-    public void switchCurrentPlayerColor() {
-        if(currentPlayerColor.equals("W")) {
-            currentPlayerColor = "B";
-        }
-        else {
-            currentPlayerColor = "W";
-        }
+    public void switchCurrentPlayer() {
+        currentPlayer = currentPlayer == playerOne ? playerTwo : playerOne;
     }
     
     public boolean hasWon() {
@@ -102,7 +107,7 @@ public class Board implements Observable {
         validCoordinates.clear();
         
         int dX = 0;
-        int dY = currentPlayerColor.equals("B") ? 1 : -1;
+        int dY = currentPlayer == playerOne ? 1 : -1;
         int x = currentCoordinates.getX() + dX;
         
         boolean canAddForward = true;
@@ -144,7 +149,7 @@ public class Board implements Observable {
     
     public boolean isTower(int x, int y) {
         try {
-            return !towerArray[y][x].equals(Towers.EMPTY);
+            return !towerArray[y][x].equals(EMPTY);
         }
         catch(IndexOutOfBoundsException e) {
             return true;
@@ -167,20 +172,27 @@ public class Board implements Observable {
         return currentCoordinates;
     }
     
-    @Override
-    public void subscribe(Observer observer) {
-        observers.add(observer);
+    public Player getPlayerOne() {
+        return playerOne;
     }
     
-    @Override
-    public void unsubscribe(Observer observer) {
-        observers.remove(observer);
+    public Player getPlayerTwo() {
+        return playerTwo;
     }
     
-    @Override
-    public void notifyAllObservers() {
-        for(Observer observer : observers) {
-            observer.update();
-        }
+    public Player getCurrentPlayer() {
+        return currentPlayer;
+    }
+    
+    public Player getOtherPlayer() {
+        return currentPlayer == playerOne ? playerTwo : playerOne;
+    }
+    
+    public boolean isFirstMove() {
+        return firstMove;
+    }
+    
+    public void setFirstMove(boolean firstMove) {
+        this.firstMove = firstMove;
     }
 }
