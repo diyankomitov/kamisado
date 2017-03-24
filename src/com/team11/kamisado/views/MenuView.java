@@ -1,9 +1,13 @@
 package com.team11.kamisado.views;
 
 import javafx.event.EventHandler;
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.input.InputEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
@@ -11,6 +15,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+
+import java.io.File;
 
 public class MenuView extends VBox {
     
@@ -37,6 +43,15 @@ public class MenuView extends VBox {
     
     private EventHandler<InputEvent> controller;
     private Button returnToMainMenuButton;
+    private Button normalGameButton;
+    private Button speedGameButton;
+    private RadioButton blackRadio;
+    private RadioButton whiteRadio;
+    private ToggleGroup toggleGroup;
+    private VBox playerOneNameBox;
+    private Label playerOneLabel;
+    private Button hardButton;
+    private Button easyButton;
     
     public MenuView(StackPane root, EventHandler<InputEvent> controller) {
         this.root = root;
@@ -78,9 +93,20 @@ public class MenuView extends VBox {
         versusPlayerButton.setOnMouseClicked(controller);
         versusPlayerButton.setOnKeyPressed(controller);
         
+        normalGameButton = new Button("Normal Game");
+        normalGameButton.getStyleClass().add("menuButton");
+        normalGameButton.setOnMouseClicked(controller);
+        normalGameButton.setOnKeyPressed(controller);
+       
+        speedGameButton = new Button("Speed Game");
+        speedGameButton.getStyleClass().add("menuButton");
+        speedGameButton.setOnMouseClicked(controller);
+        speedGameButton.setOnKeyPressed(controller);
+        
         versusAIButton = new Button("Versus AI");
         versusAIButton.getStyleClass().add("menuButton");
-        versusAIButton.setDisable(true); //TODO enable button
+        versusAIButton.setOnMouseClicked(controller);
+        versusAIButton.setOnKeyPressed(controller);
         
         cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("menuButton");
@@ -95,7 +121,7 @@ public class MenuView extends VBox {
         
         /* Enter Names */
         
-        Label playerOneLabel = new Label("Player One [Black}");
+        playerOneLabel = new Label("Player One [Black}");
         playerOneLabel.getStyleClass().add("nameLabel");
         
         playerOneName = new TextField();
@@ -117,7 +143,7 @@ public class MenuView extends VBox {
         playerTwoError = new Label();
         playerTwoError.getStyleClass().add("nameError");
         
-        VBox playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
+        playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
         playerOneNameBox.getStyleClass().add("nameBox");
         
         VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
@@ -145,7 +171,13 @@ public class MenuView extends VBox {
         root.getChildren().clear();
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, newGameButton, leaderboardButton, settingsButton, exitButton);
+        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton,
+                settingsButton, exitButton);
+    
+        File file = new File("saves/resume.ser");
+        if(!file.exists()) {
+            resumeButton.setDisable(true);
+        }
     }
     
     public void drawSelectModeScreen() {
@@ -153,9 +185,73 @@ public class MenuView extends VBox {
         this.getChildren().addAll(menuGameTitle, versusPlayerButton, versusAIButton, cancelButton);
     }
     
+    public void drawSpeedSelectScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(menuGameTitle, normalGameButton, speedGameButton, cancelButton);
+    }
+    
     public void drawEnterNameScreen() {
         this.getChildren().clear();
+        playerOneNameBox.getChildren().clear();
+        playerOneNameBox.getChildren().addAll(playerOneLabel, playerOneName, playerOneError);
         this.getChildren().addAll(menuGameTitle, namesWrapper, buttonsWrapper);
+    }
+    
+    public void drawSelectDifficultyScreen() {
+        
+        easyButton = new Button("Easy");
+        easyButton.getStyleClass().add("menuButton");
+        easyButton.setOnMouseClicked(controller);
+        easyButton.setOnKeyPressed(controller);
+        
+        hardButton = new Button("Hard");
+        hardButton.getStyleClass().add("menuButton");
+        hardButton.setOnMouseClicked(controller);
+        hardButton.setOnKeyPressed(controller);
+        
+        this.getChildren().clear();
+        this.getChildren().addAll(menuGameTitle,easyButton,hardButton, cancelButton);
+    }
+    
+    public void drawEnterNameVersusAIScreen() {
+    
+        Label singlePlayerLabel = new Label("Player");
+        singlePlayerLabel.getStyleClass().add("nameLabel");
+        
+        VBox singlePlayerNameBox = new VBox(singlePlayerLabel, playerOneName, playerOneError);
+        singlePlayerNameBox.setId("AINameBox");
+        
+        HBox versusAINameWrapper = new HBox(singlePlayerNameBox);
+        versusAINameWrapper.setId("versusAINameWrapper");
+    
+        
+        Label radioLabel = new Label("Select your color");
+        radioLabel.getStyleClass().add("nameLabel");
+    
+        toggleGroup = new ToggleGroup();
+    
+        blackRadio = new RadioButton("Black");
+        blackRadio.getStyleClass().add("radioButton");
+        blackRadio.setToggleGroup(toggleGroup);
+        blackRadio.setOnMouseClicked(controller);
+        blackRadio.setOnKeyPressed(controller);
+    
+        whiteRadio = new RadioButton("White");
+        whiteRadio.getStyleClass().add("radioButton");
+        whiteRadio.setToggleGroup(toggleGroup);
+        whiteRadio.setOnMouseClicked(controller);
+        whiteRadio.setOnKeyPressed(controller);
+    
+        HBox radioBox = new HBox(blackRadio, whiteRadio);
+        radioBox.setId("radioBox");
+    
+        VBox radioWrapper = new VBox(radioLabel, radioBox);
+        radioWrapper.setId("radioWrapper");
+        
+        
+        this.getChildren().clear();
+        this.getChildren().addAll(menuGameTitle, versusAINameWrapper, radioWrapper, buttonsWrapper);
+        
     }
     
     public void drawNameErrorMessage(Label player, String errorMessage) {
@@ -171,6 +267,7 @@ public class MenuView extends VBox {
     public void drawPauseScreen() {
         this.getChildren().clear();
         this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        resumeButton.setDisable(false);
         this.resumeButton.requestFocus();
     }
     
@@ -249,6 +346,34 @@ public class MenuView extends VBox {
     
     public Button getReturnToMainMenuButton() {
         return returnToMainMenuButton;
+    }
+    
+    public Button getNormalGameButton() {
+        return normalGameButton;
+    }
+    
+    public Button getSpeedGameButton() {
+        return speedGameButton;
+    }
+    
+    public RadioButton getBlackRadio() {
+        return blackRadio;
+    }
+    
+    public RadioButton getWhiteRadio() {
+        return whiteRadio;
+    }
+    
+    public ToggleGroup getToggleGroup() {
+        return toggleGroup;
+    }
+    
+    public Button getHardButton() {
+        return hardButton;
+    }
+    
+    public Button getEasyButton() {
+        return easyButton;
     }
     
     private Text drawLetter(String name, Colors color) {

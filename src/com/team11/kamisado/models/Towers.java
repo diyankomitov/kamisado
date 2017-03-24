@@ -1,6 +1,8 @@
 package com.team11.kamisado.models;
 
-public enum Towers {
+import java.io.Serializable;
+
+public enum Towers implements Serializable{
     
     BLACKORANGE ("orange", "black", "BO"),
     BLACKNAVY ("navy", "black", "BN"),

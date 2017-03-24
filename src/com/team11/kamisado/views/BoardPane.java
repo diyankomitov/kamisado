@@ -19,10 +19,10 @@ public class BoardPane extends Pane implements Observer {
     
     public BoardPane(BorderPane parent, Board board) {
         this.board = board;
-        this.board.subscribe(this);
         
         this.prefHeightProperty().bind(parent.heightProperty().subtract(BOARDVIEWMARGIN * 2));
         this.prefWidthProperty().bind(this.prefHeightProperty());
+        
         
         drawSquares();
         drawTowers();
@@ -34,18 +34,17 @@ public class BoardPane extends Pane implements Observer {
     
     @Override
     public void update() {
-        int curX = board.getCurrentCoordinates().getX();
-        int curY = board.getCurrentCoordinates().getY();
+        int oldX = board.getOldCoordinates().getX();
+        int oldY = board.getOldCoordinates().getY();
         int newX = board.getMoveCoordinates().getX();
         int newY = board.getMoveCoordinates().getY();
         
-        TowerView curTower = towers[curY][curX];
-        
+        TowerView curTower = towers[oldY][oldX];
         SquareView newSquare = squares[newY][newX];
         
         curTower.setCurrentSquare(newSquare);
         towers[newY][newX] = curTower;
-        towers[curY][curX] = null;
+        towers[oldY][oldX] = null;
     }
     
     private void drawSquares() {

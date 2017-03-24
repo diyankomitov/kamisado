@@ -13,17 +13,17 @@
 }
 
 #gameTitle {
-    -fx-font-size: 160;
+    -fx-font-size: 15em;
     -fx-text-alignment: center;
 }
 
 .titleLetter {
     -fx-stroke: black;
-    -fx-stroke-width: 10px;
+    -fx-stroke-width: 0.8em;
 }
 
 .menuButton {
-    -fx-font-size: 30;
+    -fx-font-size: 3.4em;
     -fx-pref-width: 500px;
     -fx-pref-height: 50px;
     -fx-background-color: #707070;
@@ -96,6 +96,31 @@
     -fx-spacing: 0;
 }
 
+
+/* AI enter name styling */
+.radioButton {
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+}
+
+#radioBox {
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+#versusAINameWrapper {
+    -fx-spacing: 10;
+}
+
+#AINameBox {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+#radioWrapper {
+    -fx-alignment: top-center;
+}
+
 /* Game screen styling */
 
 #gameView {
@@ -131,6 +156,11 @@
     -fx-text-alignment: center;
 }
 
+#timer {
+    -fx-font-size: 30px;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+}
 
 #endScreen {
     -fx-background-color: rgba(56, 56, 56, 0.5);

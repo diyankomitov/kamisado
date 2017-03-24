@@ -3,6 +3,7 @@ package com.team11.kamisado.views;
 import com.team11.kamisado.models.Board;
 import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
+import javafx.beans.property.IntegerProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
@@ -22,6 +23,8 @@ public class GameView extends BorderPane {
     private Label messageLabel;
     private SquareView current;
     private Label namesLabel;
+    private VBox sidebar;
+    private Label timer;
     
     public GameView(StackPane root) {
         this.root = root;
@@ -32,17 +35,16 @@ public class GameView extends BorderPane {
         this.board = board;
     }
     
-    public void switchSquareBorder(int x, int y) {
-        if(current == null) {
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-        }
-        else {
-            current.setStroke(Colors.TRUEBLACK.getValue());
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-        }
+    public BoardPane getBoardPane() {
+        return boardPane;
     }
+    
+//    public void reDrawBoard(Board board) {
+//        this.board = board;
+//        initGameView();
+//        drawGameView();
+//        setCurrent(board.getCurrentCoordinates().getX(), board);
+////    }
     
     public void initGameView() {
         boardPane = new BoardPane(this, board);
@@ -65,17 +67,25 @@ public class GameView extends BorderPane {
         
         namesLabel = new Label();
         namesLabel.setId("namesLabel");
+        namesLabel.setWrapText(true);
         
         messageLabel = new Label();
         messageLabel.setId("message");
         messageLabel.setWrapText(true);
-        
-        VBox sidebar = new VBox(namesLabel, messageLabel);
+        timer = new Label("5");
+        timer.setId("timer");
+    
+        sidebar = new VBox(namesLabel, messageLabel);
         sidebar.setId("sidebar");
         BorderPane.setMargin(sidebar, new Insets(BoardPane.BOARDVIEWMARGIN));
         
         this.setLeft(boardPane);
         this.setCenter(sidebar);
+    }
+    
+    public void drawTimer(IntegerProperty timeSeconds) {
+        sidebar.getChildren().add(timer);
+        timer.textProperty().bind(timeSeconds.asString());
     }
     
     public void setNames(String playerOne, String playerTwo) {
@@ -97,13 +107,27 @@ public class GameView extends BorderPane {
         messageLabel.setText(message);
     }
     
+    public void stopFadeTransition() {
+        fadeTransition.stop();
+    }
+    
+    public void setCurrent(int x, int y) {
+        if(current == null) {
+            current = boardPane.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            moveSelector(x,y);
+        }
+        else {
+            current.setStroke(Colors.TRUEBLACK.getValue());
+            current = boardPane.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            moveSelector(x,y);
+        }
+    }
+    
     public void moveSelector(int x, int y) {
         fadeTransition.stop();
         selector.moveSquare(x, y);
         fadeTransition.play();
-    }
-    
-    public void stopFadeTransition() {
-        fadeTransition.stop();
     }
 }

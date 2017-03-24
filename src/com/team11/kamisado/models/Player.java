@@ -1,9 +1,11 @@
 package com.team11.kamisado.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Diyan on 11/03/2017.
  */
-public class Player {
+public class Player implements Serializable{
     private String name;
     private String playerColor;
     
@@ -12,19 +14,16 @@ public class Player {
         this.playerColor = playerColor;
     }
     
+    public Player(Player player) {
+        this.name = player.name;
+        this.playerColor = player.playerColor;
+    }
+    
     public String getName() {
         return name;
     }
     
-    public void setName(String name) {
-        this.name = name;
-    }
-    
     public String getPlayerColor() {
         return playerColor;
-    }
-    
-    public void setPlayerColor(String playerColor) {
-        this.playerColor = playerColor;
     }
 }
