@@ -4,6 +4,7 @@ import com.team11.kamisado.AI.AIPlayer;
 import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.models.Towers;
 import com.team11.kamisado.util.Coordinates;
 import com.team11.kamisado.util.Observable;
 import com.team11.kamisado.util.Observer;
@@ -167,8 +168,13 @@ public class GameController implements Observable{
                 code = board.move(x, y);
                 this.notifyAllObservers();
             }
-            else {
+            else if(board.getTower(x,y) == Towers.EMPTY){
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
+                return;
+            }
+            else {
+                view.setMessage(true, "You can't move a tower on top of another tower.\nPlease " +
+                        "select another square");
                 return;
             }
             
