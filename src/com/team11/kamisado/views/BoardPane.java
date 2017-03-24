@@ -3,33 +3,41 @@ package com.team11.kamisado.views;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Towers;
 import com.team11.kamisado.util.Observer;
+import javafx.animation.Animation;
+import javafx.animation.FadeTransition;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
+import javafx.util.Duration;
 
 import static com.team11.kamisado.views.Colors.*;
 
 public class BoardPane extends Pane implements Observer {
+    private static final int SELECTOR_ARC = 20;
+    private static final int FADE_DURATION = 500;
+    private static final double FADE_TO_VALUE = 0.5;
     public static final int BOARD_LENGTH = 8;
-    public static final double BOARDVIEWMARGIN = 10;
+    public static final double BOARD_VIEW_MARGIN = 10;
     
-    private SquareView[][] squares = new SquareView[BOARD_LENGTH][BOARD_LENGTH];
-    private TowerView[][] towers = new TowerView[BOARD_LENGTH][BOARD_LENGTH];
+    private SquareView[][] squares;
+    private TowerView[][] towers;
     
     private Board board;
+    private SquareView selector;
+    private FadeTransition fadeTransition;
     
     public BoardPane(BorderPane parent, Board board) {
         this.board = board;
         
-        this.prefHeightProperty().bind(parent.heightProperty().subtract(BOARDVIEWMARGIN * 2));
+        this.prefHeightProperty().bind(parent.heightProperty().subtract(BOARD_VIEW_MARGIN * 2));
         this.prefWidthProperty().bind(this.prefHeightProperty());
-        
+    
+        squares = new SquareView[BOARD_LENGTH][BOARD_LENGTH];
+        towers = new TowerView[BOARD_LENGTH][BOARD_LENGTH];
         
         drawSquares();
         drawTowers();
-    }
-    
-    public SquareView getSquare(int x, int y) {
-        return squares[y][x];
+        
+        initSelector();
     }
     
     @Override
@@ -45,6 +53,36 @@ public class BoardPane extends Pane implements Observer {
         curTower.setCurrentSquare(newSquare);
         towers[newY][newX] = curTower;
         towers[oldY][oldX] = null;
+    }
+    
+    public void stopFadeTransition() {
+        fadeTransition.stop();
+    }
+    
+    public void moveSelector(int x, int y) {
+        fadeTransition.stop();
+        selector.moveSquare(x, y);
+        fadeTransition.play();
+    }
+    
+    public SquareView getSquare(int x, int y) {
+        return squares[y][x];
+    }
+    
+    private void initSelector() {
+        selector = new SquareView(this, 0, 0, Colors.TRANSPARENT);
+        selector.setStroke(Colors.TRUEWHITE.getValue());
+        selector.strokeWidthProperty().bind(selector.widthProperty().divide(10));
+        selector.setArcHeight(SELECTOR_ARC);
+        selector.setArcWidth(SELECTOR_ARC);
+        this.getChildren().addAll(selector);
+    
+        fadeTransition = new FadeTransition(Duration.millis(FADE_DURATION), selector);
+        fadeTransition.setFromValue(1);
+        fadeTransition.setToValue(FADE_TO_VALUE);
+        fadeTransition.setCycleCount(Animation.INDEFINITE);
+        fadeTransition.setAutoReverse(true);
+        fadeTransition.play();
     }
     
     private void drawSquares() {

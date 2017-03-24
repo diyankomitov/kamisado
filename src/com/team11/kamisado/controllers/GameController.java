@@ -51,7 +51,7 @@ public class GameController implements Observable{
             x = board.getCurrentCoordinates().getX();
             y = board.getCurrentCoordinates().getY();
             view.setCurrent(x,y);
-            view.moveSelector(x,y);
+            view.getBoardPane().moveSelector(x, y);
         }
     }
     
@@ -95,25 +95,25 @@ public class GameController implements Observable{
                     if(y > 0) {
                         y--;
                     }
-                    view.moveSelector(x, y);
+                    view.getBoardPane().moveSelector(x, y);
                     break;
                 case DOWN:
                     if(y < BoardPane.BOARD_LENGTH - 1) {
                         y++;
                     }
-                    view.moveSelector(x, y);
+                    view.getBoardPane().moveSelector(x, y);
                     break;
                 case LEFT:
                     if(x > 0) {
                         x--;
                     }
-                    view.moveSelector(x, y);
+                    view.getBoardPane().moveSelector(x, y);
                     break;
                 case RIGHT:
                     if(x < BoardPane.BOARD_LENGTH - 1) {
                         x++;
                     }
-                    view.moveSelector(x, y);
+                    view.getBoardPane().moveSelector(x, y);
                     break;
                 case ENTER:
                     this.onEnter();
@@ -123,9 +123,11 @@ public class GameController implements Observable{
                         undo();
                     }
                     break;
-                case M:
-                    AIPlayer player = new AIPlayer("Blah", "Blah", 0);
-                    Coordinates aiToMove = player.getCoordinates(this);
+                case A:
+                    if(event.isControlDown() && event.isShiftDown()) {      //AI test
+                        AIPlayer player = new AIPlayer("Blah", "Blah", 0);
+                        Coordinates aiToMove = player.getCoordinates(this);
+                    }
                     break;
             }
         });
@@ -209,7 +211,7 @@ public class GameController implements Observable{
     
     public void winGame(Player winner) {
         view.setEffect(new GaussianBlur(BLUR_RADIUS));
-        view.stopFadeTransition();
+        view.getBoardPane().stopFadeTransition();
         menuController.win(winner.getName());
     }
     

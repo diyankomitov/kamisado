@@ -1,23 +1,15 @@
 package com.team11.kamisado.views;
 
 import com.team11.kamisado.models.Board;
-import javafx.animation.Animation;
-import javafx.animation.FadeTransition;
 import javafx.beans.property.IntegerProperty;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class GameView extends BorderPane {
-    private static final int SELECTORARC = 20;
-    private static final int FADEDURATION = 500;
-    private static final double FADETOVALUE = 0.5;
     private StackPane root;
-    private SquareView selector;
-    private FadeTransition fadeTransition;
     private Board board;
     private BoardPane boardPane;
     private Label messageLabel;
@@ -31,39 +23,10 @@ public class GameView extends BorderPane {
         this.setId("gameView");
     }
     
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-    
-    public BoardPane getBoardPane() {
-        return boardPane;
-    }
-    
-//    public void reDrawBoard(Board board) {
-//        this.board = board;
-//        initGameView();
-//        drawGameView();
-//        setCurrent(board.getCurrentCoordinates().getX(), board);
-////    }
-    
     public void initGameView() {
         boardPane = new BoardPane(this, board);
         boardPane.setId("boardPane");
-        BorderPane.setMargin(boardPane, new Insets(BoardPane.BOARDVIEWMARGIN));
-        
-        selector = new SquareView(boardPane, 0, 0, Colors.TRANSPARENT);
-        selector.setStroke(Colors.TRUEWHITE.getValue());
-        selector.strokeWidthProperty().bind(selector.widthProperty().divide(10));
-        selector.setArcHeight(SELECTORARC);
-        selector.setArcWidth(SELECTORARC);
-        boardPane.getChildren().addAll(selector);
-        
-        fadeTransition = new FadeTransition(Duration.millis(FADEDURATION), selector);
-        fadeTransition.setFromValue(1);
-        fadeTransition.setToValue(FADETOVALUE);
-        fadeTransition.setCycleCount(Animation.INDEFINITE);
-        fadeTransition.setAutoReverse(true);
-        fadeTransition.play();
+        BorderPane.setMargin(boardPane, new Insets(BoardPane.BOARD_VIEW_MARGIN));
         
         namesLabel = new Label();
         namesLabel.setId("namesLabel");
@@ -77,10 +40,15 @@ public class GameView extends BorderPane {
     
         sidebar = new VBox(namesLabel, messageLabel);
         sidebar.setId("sidebar");
-        BorderPane.setMargin(sidebar, new Insets(BoardPane.BOARDVIEWMARGIN));
+        BorderPane.setMargin(sidebar, new Insets(BoardPane.BOARD_VIEW_MARGIN));
         
         this.setLeft(boardPane);
         this.setCenter(sidebar);
+    }
+    
+    public void drawGameView() {
+        root.getChildren().clear();
+        root.getChildren().add(this);
     }
     
     public void drawTimer(IntegerProperty timeSeconds) {
@@ -90,11 +58,6 @@ public class GameView extends BorderPane {
     
     public void setNames(String playerOne, String playerTwo) {
         namesLabel.setText("Now playing: '" + playerOne + "' vs '" + playerTwo + "'");
-    }
-    
-    public void drawGameView() {
-        root.getChildren().clear();
-        root.getChildren().add(this);
     }
     
     public void setMessage(boolean isError, String message) {
@@ -107,27 +70,25 @@ public class GameView extends BorderPane {
         messageLabel.setText(message);
     }
     
-    public void stopFadeTransition() {
-        fadeTransition.stop();
-    }
-    
     public void setCurrent(int x, int y) {
         if(current == null) {
             current = boardPane.getSquare(x, y);
             current.setStroke(Colors.TRUEWHITE.getValue());
-            moveSelector(x,y);
+            boardPane.moveSelector(x,y);
         }
         else {
             current.setStroke(Colors.TRUEBLACK.getValue());
             current = boardPane.getSquare(x, y);
             current.setStroke(Colors.TRUEWHITE.getValue());
-            moveSelector(x,y);
+            boardPane.moveSelector(x,y);
         }
     }
     
-    public void moveSelector(int x, int y) {
-        fadeTransition.stop();
-        selector.moveSquare(x, y);
-        fadeTransition.play();
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+    
+    public BoardPane getBoardPane() {
+        return boardPane;
     }
 }

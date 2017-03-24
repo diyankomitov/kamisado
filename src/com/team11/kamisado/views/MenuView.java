@@ -1,9 +1,7 @@
 package com.team11.kamisado.views;
 
 import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -19,39 +17,45 @@ import javafx.scene.text.TextFlow;
 import java.io.File;
 
 public class MenuView extends VBox {
-    
     private static final double INITIALFONTSIZE = 10;
     
     private StackPane root;
     private TextFlow menuGameTitle;
+    
+    private Button resumeButton;
     private Button newGameButton;
     private Button leaderboardButton;
     private Button settingsButton;
     private Button exitButton;
-    private Button resumeButton;
+    
     private Button versusPlayerButton;
     private Button versusAIButton;
-    private Button cancelButton;
-    private HBox namesWrapper;
-    private TextField playerTwoName;
-    private TextField playerOneName;
-    private Label playerOneError;
-    private Label playerTwoError;
-    private HBox buttonsWrapper;
-    private Button playButton;
-    private Button backButton;
-    
-    private EventHandler<InputEvent> controller;
-    private Button returnToMainMenuButton;
+    private Button easyButton;
+    private Button hardButton;
     private Button normalGameButton;
     private Button speedGameButton;
+    private Button cancelButton;
+    
+    private HBox namesWrapper;
+    private Label playerOneLabel;
+    private TextField playerOneName;
+    private TextField playerTwoName;
+    private Label playerOneError;
+    private Label playerTwoError;
+    
     private RadioButton blackRadio;
     private RadioButton whiteRadio;
-    private ToggleGroup toggleGroup;
+    private VBox radioWrapper;
     private VBox playerOneNameBox;
-    private Label playerOneLabel;
-    private Button hardButton;
-    private Button easyButton;
+    private HBox versusAINameWrapper;
+    
+    private Button playButton;
+    private Button backButton;
+    private HBox buttonsWrapper;
+    
+    private Button returnToMainMenuButton;
+    
+    private EventHandler<InputEvent> controller;
     
     public MenuView(StackPane root, EventHandler<InputEvent> controller) {
         this.root = root;
@@ -60,110 +64,11 @@ public class MenuView extends VBox {
         Font.loadFont(getClass().getResource("/fonts/Akashi.ttf").toString(), INITIALFONTSIZE);
         
         initMenuElements();
+        initPickModeScreen();
+        initEnterNameScreen();
+        initEnterNameVsAIScreen();
+        
         drawMainMenu();
-    }
-    
-    private void initMenuElements() {
-        /* Title */
-        menuGameTitle = drawTitle();
-        menuGameTitle.setId("gameTitle");
-    
-        /* Main menu buttons */
-        newGameButton = new Button("Play New Game");
-        newGameButton.getStyleClass().add("menuButton");
-        newGameButton.setOnMouseClicked(controller);
-        newGameButton.setOnKeyPressed(controller);
-        
-        leaderboardButton = new Button("View Leaderboard");
-        leaderboardButton.getStyleClass().add("menuButton");
-        leaderboardButton.setDisable(true); //TODO enable button
-        
-        settingsButton = new Button("Settings");
-        settingsButton.getStyleClass().add("menuButton");
-        settingsButton.setDisable(true); //TODO enable button
-        
-        exitButton = new Button("Exit");
-        exitButton.getStyleClass().add("menuButton");
-        exitButton.setOnMouseClicked(controller);
-        exitButton.setOnKeyPressed(controller);
-    
-        /* Pick mode buttons */
-        versusPlayerButton = new Button("Versus Player");
-        versusPlayerButton.getStyleClass().add("menuButton");
-        versusPlayerButton.setOnMouseClicked(controller);
-        versusPlayerButton.setOnKeyPressed(controller);
-        
-        normalGameButton = new Button("Normal Game");
-        normalGameButton.getStyleClass().add("menuButton");
-        normalGameButton.setOnMouseClicked(controller);
-        normalGameButton.setOnKeyPressed(controller);
-       
-        speedGameButton = new Button("Speed Game");
-        speedGameButton.getStyleClass().add("menuButton");
-        speedGameButton.setOnMouseClicked(controller);
-        speedGameButton.setOnKeyPressed(controller);
-        
-        versusAIButton = new Button("Versus AI");
-        versusAIButton.getStyleClass().add("menuButton");
-        versusAIButton.setOnMouseClicked(controller);
-        versusAIButton.setOnKeyPressed(controller);
-        
-        cancelButton = new Button("Cancel");
-        cancelButton.getStyleClass().add("menuButton");
-        cancelButton.setOnMouseClicked(controller);
-        cancelButton.setOnKeyPressed(controller);
-        
-        /* Resume Game */
-        resumeButton = new Button("Resume Game");
-        resumeButton.getStyleClass().add("menuButton");
-        resumeButton.setOnMouseClicked(controller);
-        resumeButton.setOnKeyPressed(controller);
-        
-        /* Enter Names */
-        
-        playerOneLabel = new Label("Player One [Black}");
-        playerOneLabel.getStyleClass().add("nameLabel");
-        
-        playerOneName = new TextField();
-        playerOneName.getStyleClass().add("nameField");
-        playerOneName.setPromptText("Enter Name");
-        playerOneName.setOnKeyPressed(controller);
-        
-        playerOneError = new Label();
-        playerOneError.getStyleClass().add("nameError");
-        
-        Label playerTwoLabel = new Label("Player Two [White}");
-        playerTwoLabel.getStyleClass().add("nameLabel");
-        
-        playerTwoName = new TextField();
-        playerTwoName.getStyleClass().add("nameField");
-        playerTwoName.setPromptText("Enter Name");
-        playerTwoName.setOnKeyPressed(controller);
-        
-        playerTwoError = new Label();
-        playerTwoError.getStyleClass().add("nameError");
-        
-        playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
-        playerOneNameBox.getStyleClass().add("nameBox");
-        
-        VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
-        playerTwoNameBox.getStyleClass().add("nameBox");
-        
-        namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
-        namesWrapper.setId("namesWrapper");
-        
-        playButton = new Button("Play");
-        playButton.getStyleClass().add("nameButton");
-        playButton.setOnMouseClicked(controller);
-        playButton.setOnKeyPressed(controller);
-        
-        backButton = new Button("Go Back");
-        backButton.getStyleClass().add("nameButton");
-        backButton.setOnMouseClicked(controller);
-        backButton.setOnKeyPressed(controller);
-        
-        buttonsWrapper = new HBox(playButton, backButton);
-        buttonsWrapper.setId("buttonsWrapper");
     }
     
     public void drawMainMenu() {
@@ -171,9 +76,8 @@ public class MenuView extends VBox {
         root.getChildren().clear();
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton,
-                settingsButton, exitButton);
-    
+        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        
         File file = new File("saves/resume.ser");
         if(!file.exists()) {
             resumeButton.setDisable(true);
@@ -198,57 +102,11 @@ public class MenuView extends VBox {
     }
     
     public void drawSelectDifficultyScreen() {
-        
-        easyButton = new Button("Easy");
-        easyButton.getStyleClass().add("menuButton");
-        easyButton.setOnMouseClicked(controller);
-        easyButton.setOnKeyPressed(controller);
-        
-        hardButton = new Button("Hard");
-        hardButton.getStyleClass().add("menuButton");
-        hardButton.setOnMouseClicked(controller);
-        hardButton.setOnKeyPressed(controller);
-        
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle,easyButton,hardButton, cancelButton);
+        this.getChildren().addAll(menuGameTitle, easyButton, hardButton, cancelButton);
     }
     
     public void drawEnterNameVersusAIScreen() {
-    
-        Label singlePlayerLabel = new Label("Player");
-        singlePlayerLabel.getStyleClass().add("nameLabel");
-        
-        VBox singlePlayerNameBox = new VBox(singlePlayerLabel, playerOneName, playerOneError);
-        singlePlayerNameBox.setId("AINameBox");
-        
-        HBox versusAINameWrapper = new HBox(singlePlayerNameBox);
-        versusAINameWrapper.setId("versusAINameWrapper");
-    
-        
-        Label radioLabel = new Label("Select your color");
-        radioLabel.getStyleClass().add("nameLabel");
-    
-        toggleGroup = new ToggleGroup();
-    
-        blackRadio = new RadioButton("Black");
-        blackRadio.getStyleClass().add("radioButton");
-        blackRadio.setToggleGroup(toggleGroup);
-        blackRadio.setOnMouseClicked(controller);
-        blackRadio.setOnKeyPressed(controller);
-    
-        whiteRadio = new RadioButton("White");
-        whiteRadio.getStyleClass().add("radioButton");
-        whiteRadio.setToggleGroup(toggleGroup);
-        whiteRadio.setOnMouseClicked(controller);
-        whiteRadio.setOnKeyPressed(controller);
-    
-        HBox radioBox = new HBox(blackRadio, whiteRadio);
-        radioBox.setId("radioBox");
-    
-        VBox radioWrapper = new VBox(radioLabel, radioBox);
-        radioWrapper.setId("radioWrapper");
-        
-        
         this.getChildren().clear();
         this.getChildren().addAll(menuGameTitle, versusAINameWrapper, radioWrapper, buttonsWrapper);
         
@@ -288,6 +146,155 @@ public class MenuView extends VBox {
         returnToMainMenuButton.requestFocus();
     }
     
+    private void initMenuElements() {
+        menuGameTitle = drawTitle();
+        menuGameTitle.setId("gameTitle");
+        
+        resumeButton = new Button("Resume Game");
+        resumeButton.getStyleClass().add("menuButton");
+        resumeButton.setOnMouseClicked(controller);
+        resumeButton.setOnKeyPressed(controller);
+        
+        newGameButton = new Button("Play New Game");
+        newGameButton.getStyleClass().add("menuButton");
+        newGameButton.setOnMouseClicked(controller);
+        newGameButton.setOnKeyPressed(controller);
+        
+        leaderboardButton = new Button("View Leaderboard");
+        leaderboardButton.getStyleClass().add("menuButton");
+        leaderboardButton.setDisable(true); //TODO enable button
+        
+        settingsButton = new Button("Settings");
+        settingsButton.getStyleClass().add("menuButton");
+        settingsButton.setDisable(true); //TODO enable button
+        
+        exitButton = new Button("Exit");
+        exitButton.getStyleClass().add("menuButton");
+        exitButton.setOnMouseClicked(controller);
+        exitButton.setOnKeyPressed(controller);
+    }
+    
+    private void initPickModeScreen() {
+        versusPlayerButton = new Button("Versus Player");
+        versusPlayerButton.getStyleClass().add("menuButton");
+        versusPlayerButton.setOnMouseClicked(controller);
+        versusPlayerButton.setOnKeyPressed(controller);
+        
+        versusAIButton = new Button("Versus AI");
+        versusAIButton.getStyleClass().add("menuButton");
+        versusAIButton.setOnMouseClicked(controller);
+        versusAIButton.setOnKeyPressed(controller);
+        
+        easyButton = new Button("Easy");
+        easyButton.getStyleClass().add("menuButton");
+        easyButton.setOnMouseClicked(controller);
+        easyButton.setOnKeyPressed(controller);
+        
+        hardButton = new Button("Hard");
+        hardButton.getStyleClass().add("menuButton");
+        hardButton.setOnMouseClicked(controller);
+        hardButton.setOnKeyPressed(controller);
+        
+        normalGameButton = new Button("Normal Game");
+        normalGameButton.getStyleClass().add("menuButton");
+        normalGameButton.setOnMouseClicked(controller);
+        normalGameButton.setOnKeyPressed(controller);
+        
+        speedGameButton = new Button("Speed Game");
+        speedGameButton.getStyleClass().add("menuButton");
+        speedGameButton.setOnMouseClicked(controller);
+        speedGameButton.setOnKeyPressed(controller);
+        
+        cancelButton = new Button("Cancel");
+        cancelButton.getStyleClass().add("menuButton");
+        cancelButton.setOnMouseClicked(controller);
+        cancelButton.setOnKeyPressed(controller);
+    }
+    
+    private void initEnterNameScreen() {
+        playerOneLabel = new Label("Player One [Black}");
+        playerOneLabel.getStyleClass().add("nameLabel");
+        
+        playerOneName = new TextField();
+        playerOneName.getStyleClass().add("nameField");
+        playerOneName.setPromptText("Enter Name");
+        playerOneName.setOnKeyPressed(controller);
+        
+        playerOneError = new Label();
+        playerOneError.getStyleClass().add("nameError");
+        
+        playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
+        playerOneNameBox.getStyleClass().add("nameBox");
+        
+        Label playerTwoLabel = new Label("Player Two [White}");
+        playerTwoLabel.getStyleClass().add("nameLabel");
+        
+        playerTwoName = new TextField();
+        playerTwoName.getStyleClass().add("nameField");
+        playerTwoName.setPromptText("Enter Name");
+        playerTwoName.setOnKeyPressed(controller);
+        
+        playerTwoError = new Label();
+        playerTwoError.getStyleClass().add("nameError");
+        
+        VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
+        playerTwoNameBox.getStyleClass().add("nameBox");
+        
+        namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
+        namesWrapper.setId("namesWrapper");
+        
+        playButton = new Button("Play");
+        playButton.getStyleClass().add("nameButton");
+        playButton.setOnMouseClicked(controller);
+        playButton.setOnKeyPressed(controller);
+        
+        backButton = new Button("Go Back");
+        backButton.getStyleClass().add("nameButton");
+        backButton.setOnMouseClicked(controller);
+        backButton.setOnKeyPressed(controller);
+        
+        buttonsWrapper = new HBox(playButton, backButton);
+        buttonsWrapper.setId("buttonsWrapper");
+    }
+    
+    private void initEnterNameVsAIScreen() {
+        Label singlePlayerLabel = new Label("Player");
+        singlePlayerLabel.getStyleClass().add("nameLabel");
+        
+        VBox singlePlayerNameBox = new VBox(singlePlayerLabel, playerOneName, playerOneError);
+        singlePlayerNameBox.setId("AINameBox");
+        
+        versusAINameWrapper = new HBox(singlePlayerNameBox);
+        versusAINameWrapper.setId("versusAINameWrapper");
+        
+        Label radioLabel = new Label("Select your color");
+        radioLabel.getStyleClass().add("nameLabel");
+        
+        ToggleGroup toggleGroup = new ToggleGroup();
+        
+        blackRadio = new RadioButton("Black");
+        blackRadio.getStyleClass().add("radioButton");
+        blackRadio.setToggleGroup(toggleGroup);
+        blackRadio.setOnMouseClicked(controller);
+        blackRadio.setOnKeyPressed(controller);
+        
+        whiteRadio = new RadioButton("White");
+        whiteRadio.getStyleClass().add("radioButton");
+        whiteRadio.setToggleGroup(toggleGroup);
+        whiteRadio.setOnMouseClicked(controller);
+        whiteRadio.setOnKeyPressed(controller);
+        
+        HBox radioBox = new HBox(blackRadio, whiteRadio);
+        radioBox.setId("radioBox");
+        
+        radioWrapper = new VBox(radioLabel, radioBox);
+        radioWrapper.setId("radioWrapper");
+    }
+    
+    public Button getResumeButton() {
+        return resumeButton;
+    }
+    
     public Button getNewGameButton() {
         return newGameButton;
     }
@@ -304,10 +311,6 @@ public class MenuView extends VBox {
         return exitButton;
     }
     
-    public Button getResumeButton() {
-        return resumeButton;
-    }
-    
     public Button getVersusPlayerButton() {
         return versusPlayerButton;
     }
@@ -316,36 +319,12 @@ public class MenuView extends VBox {
         return versusAIButton;
     }
     
-    public Button getCancelButton() {
-        return cancelButton;
+    public Button getEasyButton() {
+        return easyButton;
     }
     
-    public Button getPlayButton() {
-        return playButton;
-    }
-    
-    public Button getBackButton() {
-        return backButton;
-    }
-    
-    public TextField getPlayerTwoName() {
-        return playerTwoName;
-    }
-    
-    public TextField getPlayerOneName() {
-        return playerOneName;
-    }
-    
-    public Label getPlayerOneError() {
-        return playerOneError;
-    }
-    
-    public Label getPlayerTwoError() {
-        return playerTwoError;
-    }
-    
-    public Button getReturnToMainMenuButton() {
-        return returnToMainMenuButton;
+    public Button getHardButton() {
+        return hardButton;
     }
     
     public Button getNormalGameButton() {
@@ -356,6 +335,26 @@ public class MenuView extends VBox {
         return speedGameButton;
     }
     
+    public Button getCancelButton() {
+        return cancelButton;
+    }
+    
+    public TextField getPlayerOneName() {
+        return playerOneName;
+    }
+    
+    public TextField getPlayerTwoName() {
+        return playerTwoName;
+    }
+    
+    public Label getPlayerOneError() {
+        return playerOneError;
+    }
+    
+    public Label getPlayerTwoError() {
+        return playerTwoError;
+    }
+    
     public RadioButton getBlackRadio() {
         return blackRadio;
     }
@@ -364,16 +363,16 @@ public class MenuView extends VBox {
         return whiteRadio;
     }
     
-    public ToggleGroup getToggleGroup() {
-        return toggleGroup;
+    public Button getPlayButton() {
+        return playButton;
     }
     
-    public Button getHardButton() {
-        return hardButton;
+    public Button getBackButton() {
+        return backButton;
     }
     
-    public Button getEasyButton() {
-        return easyButton;
+    public Button getReturnToMainMenuButton() {
+        return returnToMainMenuButton;
     }
     
     private Text drawLetter(String name, Colors color) {

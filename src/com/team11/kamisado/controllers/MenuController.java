@@ -1,11 +1,9 @@
 package com.team11.kamisado.controllers;
 
 import com.team11.kamisado.AI.AIPlayer;
-import com.team11.kamisado.AI.MiniMax;
 import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
-import com.team11.kamisado.util.Coordinates;
 import com.team11.kamisado.views.GameView;
 import com.team11.kamisado.views.MenuView;
 import javafx.event.EventHandler;
@@ -20,8 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Stack;
 
@@ -45,10 +41,6 @@ public class MenuController implements EventHandler<InputEvent> {
         isPaused = false;
         isSpeed = false;
         AIGame = false;
-    }
-    
-    public StackPane getRoot() {
-        return application.getRoot();
     }
     
     public void addView(MenuView view) {
@@ -143,14 +135,14 @@ public class MenuController implements EventHandler<InputEvent> {
                     gameController.setActiveController();
                 }
                 else {
-                    Board board = (Board)loadBoardFromFile().get(0);
-                    isSpeed = (boolean)loadBoardFromFile().get(1);
+                    Board board = (Board) loadBoardFromFile().get(0);
+                    isSpeed = (boolean) loadBoardFromFile().get(1);
                     Stack<Board> stack = (Stack<Board>) loadBoardFromFile().get(3);
                     
                     GameView gameView = new GameView(application.getRoot());
-    
+                    
                     if(isSpeed) {
-                        gameController = new SpeedGameController(this, gameView, board, (Integer)loadBoardFromFile().get(2));
+                        gameController = new SpeedGameController(this, gameView, board, (Integer) loadBoardFromFile().get(2));
                     }
                     else {
                         gameController = new GameController(this, gameView, board);
@@ -261,8 +253,7 @@ public class MenuController implements EventHandler<InputEvent> {
     private void onPlayerTwoName() {
         pTwoName = view.getPlayerTwoName().getText().trim();
         if(pTwoName.equals("")) {
-            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a player "
-                    + "name");
+            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a player " + "name");
         }
         else if(pTwoName.equals(pOneName)) {
             view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a different" + " name than Player One");
@@ -274,16 +265,14 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     private void exitGame() {
-        //Towers[][] currentTowerArray = gameController.getCurrentTowers();
         if(gameInProgress) {
             ArrayList<Object> store = new ArrayList<>();
             Board board = gameController.getBoard();
             store.add(board);
             store.add(isSpeed);
-            store.add(gameController instanceof SpeedGameController ? ((SpeedGameController)
-                    gameController).getCurrentTime() : null);
+            store.add(gameController instanceof SpeedGameController ? ((SpeedGameController) gameController).getCurrentTime() : null);
             store.add(gameController.getBoardStack());
-    
+            
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream("saves/resume.ser");
                 ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
@@ -295,7 +284,6 @@ public class MenuController implements EventHandler<InputEvent> {
                 e.printStackTrace();
             }
         }
-        
         application.getStage().close();
     }
 }

@@ -5,12 +5,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Ellipse;
 
 public class TowerView extends Pane {
-    private static final double SQUAREY_TO_TOWERY_RATIO = 2.1;
+    private static final double SQUARE_Y_TO_TOWER_Y_RATIO = 2.1;
     private static final double RADIUS_X_TO_OUTER_RX_RATIO = 1.5;
-    private static final int WIDTHTOSQUAREWIDTHRATIO = 3;
-    private static final double HEIGHTTOSQUAREWIDTHRATIO = 3.5;
-    private static final int STROKETORADIUSXRATIO = 12;
-    private static final int LOWERYTOOUTERYPLUSOUTERRADIUSXRATIO = 5;
+    private static final int WIDTH_TO_SQUARE_WIDTH_RATIO = 3;
+    private static final double HEIGHT_TO_SQUARE_WIDTH_RATIO = 3.5;
+    private static final int STROKE_TO_RADIUS_X_RATIO = 12;
+    private static final int LOWERY_TO_OUTER_Y_PLUS_OUTER_RADIUS_X_RATIO = 5;
     
     private Ellipse outer;
     private Ellipse lower;
@@ -33,9 +33,9 @@ public class TowerView extends Pane {
     public void setCurrentSquare(SquareView currentSquare) {
         DoubleProperty currentSquareWidth = currentSquare.widthProperty();
         this.translateXProperty().bind(currentSquare.xProperty().add(currentSquareWidth.divide(2)));
-        this.translateYProperty().bind(currentSquare.yProperty().add(currentSquareWidth.divide(SQUAREY_TO_TOWERY_RATIO)));
-        this.prefWidthProperty().bind(currentSquareWidth.divide(WIDTHTOSQUAREWIDTHRATIO));
-        this.prefHeightProperty().bind(currentSquareWidth.divide(HEIGHTTOSQUAREWIDTHRATIO));
+        this.translateYProperty().bind(currentSquare.yProperty().add(currentSquareWidth.divide(SQUARE_Y_TO_TOWER_Y_RATIO)));
+        this.prefWidthProperty().bind(currentSquareWidth.divide(WIDTH_TO_SQUARE_WIDTH_RATIO));
+        this.prefHeightProperty().bind(currentSquareWidth.divide(HEIGHT_TO_SQUARE_WIDTH_RATIO));
     }
     
     private void binding(Ellipse ellipse, double radiusXToOuterRXRatio, Colors fill) {
@@ -52,11 +52,11 @@ public class TowerView extends Pane {
         }
         
         if(ellipse == lower) {
-            lower.centerYProperty().bind(outer.centerYProperty().add(outerRX.divide(LOWERYTOOUTERYPLUSOUTERRADIUSXRATIO)));
+            lower.centerYProperty().bind(outer.centerYProperty().add(outerRX.divide(LOWERY_TO_OUTER_Y_PLUS_OUTER_RADIUS_X_RATIO)));
         }
         
         ellipse.setFill(fill.getValue());
         ellipse.setStroke(Colors.TRUEBLACK.getValue());
-        ellipse.strokeWidthProperty().bind(outerRX.divide(STROKETORADIUSXRATIO));
+        ellipse.strokeWidthProperty().bind(outerRX.divide(STROKE_TO_RADIUS_X_RATIO));
     }
 }

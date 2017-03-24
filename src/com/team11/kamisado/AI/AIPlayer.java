@@ -4,7 +4,6 @@ import com.team11.kamisado.controllers.GameController;
 import com.team11.kamisado.models.Player;
 import com.team11.kamisado.util.Coordinates;
 
-import java.util.LinkedList;
 import java.util.Random;
 
 /**
@@ -37,33 +36,10 @@ public class AIPlayer extends Player {
             return controller.getBoard().getValidCoordinates().get(i);
         }
         else {
-            MiniMax algo = new MiniMax(controller.getBoard());
-            State state = algo.getRightState();
-            return state.getBoard().getMoveCoordinates();
+            MiniMax algorithm = new MiniMax(controller.getBoard());
+            AIState AIState = algorithm.getOptimalAIState();
+            return AIState.getBoard().getMoveCoordinates();
         }
-        
-    }
-    
-    public State generateInitialMoves(State state) {
-        
-        LinkedList<State> stateList = new LinkedList<>();
-        
-        for(int i = 0; i < 8; i++) {
-            Coordinates coordinates = new Coordinates(0,i);
-            State newState = new State(state);
-            int x = coordinates.getX();
-            int y = coordinates.getY();
-            newState.getBoard().setCurrentSquare(x, y);
-            newState.getBoard().setCurrentCoordinates();
-            newState.getBoard().setValidCoordinates();
-            newState.getBoard().setFirstMoveToFalse();
-            newState.setScore(0);
-            stateList.add(newState);
-        }
-        
-        state.setChildren(stateList);
-        
-        return state;
         
     }
 }
