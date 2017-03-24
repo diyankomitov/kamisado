@@ -35,7 +35,6 @@ public class GameController implements Observable{
         this.board = board;
     
         boardStack = new Stack<>();
-        saveBoard();
         
         AIOnTurn = board.getCurrentPlayer() instanceof AIPlayer;
         
@@ -73,6 +72,9 @@ public class GameController implements Observable{
 
     private void undo() {
         try {
+            if(board.getOtherPlayer() instanceof AIPlayer) {
+                boardStack.pop();
+            }
             board = boardStack.pop();
             menuController.undo(board, boardStack);
            
@@ -233,5 +235,19 @@ public class GameController implements Observable{
     
     public void setStack(Stack<Board> stack) {
         this.boardStack = stack;
+    }
+    
+    public void undoAgain() {
+        try {
+            board = boardStack.pop();
+            menuController.undo(board, boardStack);
+        }
+        catch(EmptyStackException e) {
+            view.setMessage(true, "You can't undo anymore, you've reached the start of the game!");
+        }
+    }
+    
+    public Stack<Board> getBoardStack() {
+        return boardStack;
     }
 }

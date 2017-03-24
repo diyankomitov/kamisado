@@ -145,6 +145,7 @@ public class MenuController implements EventHandler<InputEvent> {
                 else {
                     Board board = (Board)loadBoardFromFile().get(0);
                     isSpeed = (boolean)loadBoardFromFile().get(1);
+                    Stack<Board> stack = (Stack<Board>) loadBoardFromFile().get(3);
                     
                     GameView gameView = new GameView(application.getRoot());
     
@@ -156,6 +157,7 @@ public class MenuController implements EventHandler<InputEvent> {
                     }
                     gameController.setActiveController();
                     gameInProgress = true;
+                    gameController.setStack(stack);
                 }
                 isPaused = false;
             }
@@ -166,13 +168,16 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     public void undo(Board board, Stack<Board> boardStack) {
-        board.switchCurrentPlayer();
+        if(board.getCurrentPlayer().getPlayerColor().equals("B")) {
+            board.switchCurrentPlayer();
+        }
         GameView gameView = new GameView(application.getRoot());
         gameController = null;
         gameController = new GameController(this, gameView, board);
         gameController.setActiveController();
         gameInProgress = true;
         gameController.setStack(boardStack);
+        gameView.setMessage(false, "You undid a move.\nYou can now move again");
     }
     
     public void win(String winner) {
@@ -277,6 +282,7 @@ public class MenuController implements EventHandler<InputEvent> {
             store.add(isSpeed);
             store.add(gameController instanceof SpeedGameController ? ((SpeedGameController)
                     gameController).getCurrentTime() : null);
+            store.add(gameController.getBoardStack());
     
             try {
                 FileOutputStream fileOutputStream = new FileOutputStream("saves/resume.ser");
