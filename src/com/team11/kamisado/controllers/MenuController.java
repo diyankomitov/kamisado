@@ -1,5 +1,7 @@
 package com.team11.kamisado.controllers;
 
+import com.team11.kamisado.AI.AIPlayer;
+import com.team11.kamisado.AI.MiniMax;
 import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
@@ -10,6 +12,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +23,7 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Stack;
 
 import static javafx.scene.input.KeyCode.ENTER;
 
@@ -33,11 +37,18 @@ public class MenuController implements EventHandler<InputEvent> {
     private String pOneName;
     private boolean isSpeed;
     private boolean gameInProgress;
+    private boolean AIGame;
+    private int difficulty;
     
     public MenuController(KamisadoApp application) {
         this.application = application;
         isPaused = false;
         isSpeed = false;
+        AIGame = false;
+    }
+    
+    public StackPane getRoot() {
+        return application.getRoot();
     }
     
     public void addView(MenuView view) {
@@ -66,7 +77,28 @@ public class MenuController implements EventHandler<InputEvent> {
                 exitGame();
             }
             else if(source.equals(view.getVersusPlayerButton())) {
+                AIGame = false;
                 view.drawSpeedSelectScreen();
+            }
+            else if(source.equals(view.getVersusAIButton())) {
+                AIGame = true;
+                view.drawSelectDifficultyScreen();
+            }
+            else if(source.equals(view.getEasyButton())) {
+                difficulty = 0;
+                view.drawSpeedSelectScreen();
+            }
+            else if(source.equals(view.getHardButton())) {
+                difficulty = 1;
+                view.drawSpeedSelectScreen();
+            }
+            else if(source.equals(view.getWhiteRadio())) {
+                view.getWhiteRadio().setSelected(true);
+                view.getPlayButton().requestFocus();
+            }
+            else if(source.equals(view.getBlackRadio())) {
+                view.getBlackRadio().setSelected(true);
+                view.getPlayButton().requestFocus();
             }
             else if(source.equals(view.getCancelButton())) {
                 if(isPaused) {
@@ -78,11 +110,21 @@ public class MenuController implements EventHandler<InputEvent> {
             }
             else if(source.equals(view.getNormalGameButton())) {
                 isSpeed = false;
-                view.drawEnterNameScreen();
+                if(AIGame) {
+                    view.drawEnterNameVersusAIScreen();
+                }
+                else {
+                    view.drawEnterNameScreen();
+                }
             }
             else if(source.equals(view.getSpeedGameButton())) {
                 isSpeed = true;
-                view.drawEnterNameScreen();
+                if(AIGame) {
+                    view.drawEnterNameVersusAIScreen();
+                }
+                else {
+                    view.drawEnterNameScreen();
+                }
             }
             else if(source.equals(view.getPlayButton())) {
                 onPlayButton();
@@ -91,7 +133,7 @@ public class MenuController implements EventHandler<InputEvent> {
                 onPlayerOneName();
             }
             else if(source.equals(view.getPlayerTwoName())) {
-               onPlayerTwoName();
+                onPlayerTwoName();
             }
             else if(source.equals(view.getBackButton())) {
                 view.drawSelectModeScreen();
@@ -123,6 +165,16 @@ public class MenuController implements EventHandler<InputEvent> {
         }
     }
     
+    public void undo(Board board, Stack<Board> boardStack) {
+        board.switchCurrentPlayer();
+        GameView gameView = new GameView(application.getRoot());
+        gameController = null;
+        gameController = new GameController(this, gameView, board);
+        gameController.setActiveController();
+        gameInProgress = true;
+        gameController.setStack(boardStack);
+    }
+    
     public void win(String winner) {
         File file = new File("saves/resume.ser");
         file.delete();
@@ -137,12 +189,25 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     private void onPlayButton() {
-        Player playerOne = new Player(view.getPlayerOneName().getText(), "B");
-        Player playerTwo = new Player(view.getPlayerTwoName().getText(), "W");
+        Player playerOne = null;
+        Player playerTwo = null;
         
-        //Board board = loadBoardFromFile();
+        if(AIGame) {
+            if(view.getBlackRadio().isSelected()) {
+                playerOne = new Player(view.getPlayerOneName().getText(), "B");
+                playerTwo = new AIPlayer("AI", "W", difficulty);
+            }
+            else if(view.getWhiteRadio().isSelected()) {
+                playerOne = new AIPlayer("AI", "B", difficulty);
+                playerTwo = new Player(view.getPlayerOneName().getText(), "W");
+            }
+        }
+        else {
+            playerOne = new Player(view.getPlayerOneName().getText(), "B");
+            playerTwo = new Player(view.getPlayerTwoName().getText(), "W");
+        }
+        
         Board board = new Board(playerOne, playerTwo);
-        
         GameView gameView = new GameView(application.getRoot());
         
         if(isSpeed) {
@@ -178,7 +243,12 @@ public class MenuController implements EventHandler<InputEvent> {
             view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a different" + " name than Player Two");
         }
         else {
-            view.getPlayerTwoName().requestFocus();
+            if(AIGame) {
+                view.getBlackRadio().requestFocus();
+            }
+            else {
+                view.getPlayerTwoName().requestFocus();
+            }
             view.drawNameErrorMessage(view.getPlayerOneError(), "");
         }
     }

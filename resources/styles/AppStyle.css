@@ -96,6 +96,31 @@
     -fx-spacing: 0;
 }
 
+
+/* AI enter name styling */
+.radioButton {
+    -fx-font-size: 20;
+    -fx-text-fill: white;
+}
+
+#radioBox {
+    -fx-alignment: center;
+    -fx-spacing: 20;
+}
+
+#versusAINameWrapper {
+    -fx-spacing: 10;
+}
+
+#AINameBox {
+    -fx-spacing: 20;
+    -fx-alignment: center;
+}
+
+#radioWrapper {
+    -fx-alignment: top-center;
+}
+
 /* Game screen styling */
 
 #gameView {

@@ -19,8 +19,8 @@ public class KamisadoApp extends Application {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/AppStyle.css");
         
-        primaryStage.setFullScreen(true);
-        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+//        primaryStage.setFullScreen(true);
+//        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Kamisado");
         primaryStage.show();

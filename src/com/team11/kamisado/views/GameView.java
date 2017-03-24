@@ -39,6 +39,13 @@ public class GameView extends BorderPane {
         return boardPane;
     }
     
+//    public void reDrawBoard(Board board) {
+//        this.board = board;
+//        initGameView();
+//        drawGameView();
+//        setCurrent(board.getCurrentCoordinates().getX(), board);
+////    }
+    
     public void initGameView() {
         boardPane = new BoardPane(this, board);
         boardPane.setId("boardPane");
@@ -60,6 +67,7 @@ public class GameView extends BorderPane {
         
         namesLabel = new Label();
         namesLabel.setId("namesLabel");
+        namesLabel.setWrapText(true);
         
         messageLabel = new Label();
         messageLabel.setId("message");
