@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Stack;
+import java.lang.System.*;
 
 public class GameController implements Observable{
     
@@ -33,7 +34,7 @@ public class GameController implements Observable{
     public GameController(MenuController menuController, GameView gameView, Board board) {
         this.menuController = menuController;
         this.board = board;
-    
+        
         boardStack = new Stack<>();
         
         AIOnTurn = board.getCurrentPlayer() instanceof AIPlayer;

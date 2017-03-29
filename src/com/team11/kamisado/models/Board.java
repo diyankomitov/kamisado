@@ -221,7 +221,6 @@ public class Board implements Serializable{
         }
         
         return validCoordinates.size() != 0;
-        
     }
     
     private boolean addToValidCoordinatesList(boolean add, int x, int y) {

@@ -4,21 +4,15 @@ import com.team11.kamisado.AI.AIPlayer;
 import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.util.SaveManager;
 import com.team11.kamisado.views.GameView;
 import com.team11.kamisado.views.MenuView;
 import javafx.event.EventHandler;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
 import java.util.Stack;
 
 import static javafx.scene.input.KeyCode.ENTER;
@@ -62,37 +56,37 @@ public class MenuController implements EventHandler<InputEvent> {
         }
         
         if(clicked || pressed) {
-            if(source.equals(view.getNewGameButton())) {
+            if(source == view.getNewGameButton()) {
                 view.drawSelectModeScreen();
             }
-            else if(source.equals(view.getExitButton())) {
-                exitGame();
+            else if(source == view.getExitButton()) {
+                this.exitGame();
             }
-            else if(source.equals(view.getVersusPlayerButton())) {
+            else if(source == view.getVersusPlayerButton()) {
                 AIGame = false;
                 view.drawSpeedSelectScreen();
             }
-            else if(source.equals(view.getVersusAIButton())) {
+            else if(source == view.getVersusAIButton()) {
                 AIGame = true;
                 view.drawSelectDifficultyScreen();
             }
-            else if(source.equals(view.getEasyButton())) {
+            else if(source == view.getEasyButton()) {
                 difficulty = 0;
                 view.drawSpeedSelectScreen();
             }
-            else if(source.equals(view.getHardButton())) {
+            else if(source == view.getHardButton()) {
                 difficulty = 1;
                 view.drawSpeedSelectScreen();
             }
-            else if(source.equals(view.getWhiteRadio())) {
+            else if(source == view.getWhiteRadio()) {
                 view.getWhiteRadio().setSelected(true);
                 view.getPlayButton().requestFocus();
             }
-            else if(source.equals(view.getBlackRadio())) {
+            else if(source == view.getBlackRadio()) {
                 view.getBlackRadio().setSelected(true);
                 view.getPlayButton().requestFocus();
             }
-            else if(source.equals(view.getCancelButton())) {
+            else if(source == view.getCancelButton()) {
                 if(isPaused) {
                     view.drawPauseScreen();
                 }
@@ -100,7 +94,7 @@ public class MenuController implements EventHandler<InputEvent> {
                     view.drawMainMenu();
                 }
             }
-            else if(source.equals(view.getNormalGameButton())) {
+            else if(source == view.getNormalGameButton()) {
                 isSpeed = false;
                 if(AIGame) {
                     view.drawEnterNameVersusAIScreen();
@@ -109,7 +103,7 @@ public class MenuController implements EventHandler<InputEvent> {
                     view.drawEnterNameScreen();
                 }
             }
-            else if(source.equals(view.getSpeedGameButton())) {
+            else if(source == view.getSpeedGameButton()) {
                 isSpeed = true;
                 if(AIGame) {
                     view.drawEnterNameVersusAIScreen();
@@ -118,45 +112,49 @@ public class MenuController implements EventHandler<InputEvent> {
                     view.drawEnterNameScreen();
                 }
             }
-            else if(source.equals(view.getPlayButton())) {
-                onPlayButton();
+            else if(source == view.getPlayButton()) {
+                this.onPlayButton();
             }
-            else if(source.equals(view.getPlayerOneName())) {
-                onPlayerOneName();
+            else if(source == view.getPlayerOneName()) {
+                this.onPlayerOneName();
             }
-            else if(source.equals(view.getPlayerTwoName())) {
-                onPlayerTwoName();
+            else if(source == view.getPlayerTwoName()) {
+                this.onPlayerTwoName();
             }
-            else if(source.equals(view.getBackButton())) {
+            else if(source == view.getBackButton()) {
                 view.drawSelectModeScreen();
             }
-            else if(source.equals(view.getResumeButton())) {
-                if(gameInProgress) {
-                    gameController.setActiveController();
-                }
-                else {
-                    Board board = (Board) loadBoardFromFile().get(0);
-                    isSpeed = (boolean) loadBoardFromFile().get(1);
-                    Stack<Board> stack = (Stack<Board>) loadBoardFromFile().get(3);
-                    
-                    GameView gameView = new GameView(application.getRoot());
-                    
-                    if(isSpeed) {
-                        gameController = new SpeedGameController(this, gameView, board, (Integer) loadBoardFromFile().get(2));
-                    }
-                    else {
-                        gameController = new GameController(this, gameView, board);
-                    }
-                    gameController.setActiveController();
-                    gameInProgress = true;
-                    gameController.setStack(stack);
-                }
-                isPaused = false;
+            else if(source == view.getResumeButton()) {
+                this.onResume();
             }
-            else if(source.equals(view.getReturnToMainMenuButton())) {
+            else if(source == view.getReturnToMainMenuButton()) {
                 view.drawMainMenu();
             }
         }
+    }
+    
+    private void onResume() {
+        if(gameInProgress) {
+            gameController.setActiveController();
+        }
+        else {
+            Board board = (Board) SaveManager.loadFromFile().get(0);
+            isSpeed = (boolean) SaveManager.loadFromFile().get(1);
+            Stack<Board> stack = (Stack<Board>) SaveManager.loadFromFile().get(3);
+        
+            GameView gameView = new GameView(application.getRoot());
+        
+            if(isSpeed) {
+                gameController = new SpeedGameController(this, gameView, board, (Integer) SaveManager.loadFromFile().get(2));
+            }
+            else {
+                gameController = new GameController(this, gameView, board);
+            }
+            gameController.setActiveController();
+            gameInProgress = true;
+            gameController.setStack(stack);
+        }
+        isPaused = false;
     }
     
     public void undo(Board board, Stack<Board> boardStack) {
@@ -173,10 +171,8 @@ public class MenuController implements EventHandler<InputEvent> {
     }
     
     public void win(String winner) {
-        File file = new File("saves/resume.ser");
-        file.delete();
+        SaveManager.deleteFile();
         gameInProgress = false;
-        
         view.drawEndScreen(winner);
     }
     
@@ -217,27 +213,13 @@ public class MenuController implements EventHandler<InputEvent> {
         gameInProgress = true;
     }
     
-    private ArrayList<Object> loadBoardFromFile() {
-        try {
-            FileInputStream fileInputStream = new FileInputStream("saves/resume.ser");
-            ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-            ArrayList<Object> list = (ArrayList<Object>) objectInputStream.readObject();
-            objectInputStream.close();
-            return list;
-        }
-        catch(ClassNotFoundException | IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-    
     private void onPlayerOneName() {
         pOneName = view.getPlayerOneName().getText().trim();
         if(pOneName.equals("")) {
-            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a player " + "name");
+            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a player name");
         }
         else if(pOneName.equals(pTwoName)) {
-            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a different" + " name than Player Two");
+            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a different name than Player Two");
         }
         else {
             if(AIGame) {
@@ -253,10 +235,10 @@ public class MenuController implements EventHandler<InputEvent> {
     private void onPlayerTwoName() {
         pTwoName = view.getPlayerTwoName().getText().trim();
         if(pTwoName.equals("")) {
-            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a player " + "name");
+            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a player name");
         }
         else if(pTwoName.equals(pOneName)) {
-            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a different" + " name than Player One");
+            view.drawNameErrorMessage(view.getPlayerTwoError(), "Please enter a different name than Player One");
         }
         else {
             view.getPlayButton().requestFocus();
@@ -266,23 +248,13 @@ public class MenuController implements EventHandler<InputEvent> {
     
     private void exitGame() {
         if(gameInProgress) {
-            ArrayList<Object> store = new ArrayList<>();
-            Board board = gameController.getBoard();
-            store.add(board);
-            store.add(isSpeed);
-            store.add(gameController instanceof SpeedGameController ? ((SpeedGameController) gameController).getCurrentTime() : null);
-            store.add(gameController.getBoardStack());
             
-            try {
-                FileOutputStream fileOutputStream = new FileOutputStream("saves/resume.ser");
-                ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
-                outputStream.writeObject(store);
-                outputStream.close();
-                fileOutputStream.close();
-            }
-            catch(IOException e) {
-                e.printStackTrace();
-            }
+            Board board = gameController.getBoard();
+    
+            int time = gameController instanceof SpeedGameController ?
+                    ((SpeedGameController) gameController).getCurrentTime() : 0;
+    
+            SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack());
         }
         application.getStage().close();
     }
