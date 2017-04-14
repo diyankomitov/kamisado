@@ -13,10 +13,10 @@
 
 /* Main Menu Styling */
 #menuView {
-    -fx-alignment: baseline-center;
+    -fx-alignment: center;
     -fx-fill-width: false;
     -fx-padding: 250,0,0,0;
-    -fx-spacing: 50;
+    -fx-spacing: 25;
 }
 
 #gameTitle {
@@ -52,29 +52,32 @@
 
 /* Enter Name Screen Styling */
 #namesWrapper {
+    -fx-alignment: inherit;
     -fx-spacing: 10;
 }
 
 .nameBox {
+    -fx-alignment: inherit;
     -fx-spacing: 10;
-    -fx-alignment: center
 }
 
 .nameLabel {
+    -fx-alignment: inherit;
     -fx-font-size: 26;
     -fx-text-fill: #707070;
 }
 
 .nameField {
+    -fx-alignment: inherit;
     -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
     -fx-font-size: 30;
     -fx-max-width: 500;
     -fx-background-color: #707070;
     -fx-text-fill: white;
-    -fx-alignment: center
 }
 
 .nameError {
+    -fx-alignment: inherit;
     -fx-font-size: 12;
     -fx-text-fill: red;
 }
@@ -132,7 +135,7 @@
 
 #singlePlayerNameWrapper {
     -fx-alignment: inherit;
-    -fx-spacing: 20;
+    -fx-spacing: 10;
 }
 
 /* Game screen styling */

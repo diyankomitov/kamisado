@@ -1,6 +1,6 @@
 package com.team11.kamisado.views;
 
-import javafx.css.PseudoClass;
+import com.team11.kamisado.util.SaveManager;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -8,16 +8,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 
 public class MenuView extends MenuViewBase {
     private StackPane root;
-    private TextFlow menuGameTitle;
     
     private Button resumeButton;
     private Button newGameButton;
@@ -27,8 +22,6 @@ public class MenuView extends MenuViewBase {
     
     private Button versusPlayerButton;
     private Button versusAIButton;
-    private Button normalGameButton;
-    private Button speedGameButton;
     private Button cancelButton;
     
     private HBox namesWrapper;
@@ -37,72 +30,51 @@ public class MenuView extends MenuViewBase {
     private Label playerOneError;
     private Label playerTwoError;
     
-    private Button playButton;
-    private Button backButton;
-    private HBox buttonsWrapper;
-    
     private Button returnToMainMenuButton;
     
     private List<Node> handledNodes;
     
     public MenuView(StackPane root) {
+        super();
         this.root = root;
         
-        this.handledNodes = new ArrayList<>();
+        this.handledNodes = getHandledNodes();
         
         initMenuElements();
         initPickModeScreen();
         initEnterNameScreen();
         initEndScreen();
         
+        root.getChildren().add(this);
         drawMainMenu();
         this.setId("menuView");
         this.getStyleClass().add("transparentMenu");
     }
     
     public void drawMainMenu() {
-        setTransparent(false);
-        root.getChildren().clear();
-        root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        this.getChildren().addAll(getMenuGameTitle(), resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
         
-        File file = new File("saves/resume.ser");
-        if(!file.exists()) {
+        if(!SaveManager.fileExists()) {
             resumeButton.setDisable(true);
+        }
+        else {
+            resumeButton.setDisable(false);
         }
     }
     
     public void drawSelectModeScreen() {
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, versusPlayerButton, versusAIButton, cancelButton);
-    }
-    
-    public void drawSpeedSelectScreen() {
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, normalGameButton, speedGameButton, cancelButton);
+        this.getChildren().addAll(getMenuGameTitle(), versusPlayerButton, versusAIButton, cancelButton);
     }
     
     public void drawEnterNameScreen() {
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, namesWrapper, buttonsWrapper);
+        this.getChildren().addAll(getMenuGameTitle(), namesWrapper, getModeRadioWrapper(), getButtonsWrapper());
     }
     
     public void drawNameErrorMessage(Label player, String errorMessage) {
         player.setText(errorMessage);
-    }
-    
-    public void initPauseScreen() {
-        setTransparent(true);
-        root.getChildren().add(this);
-        drawPauseScreen();
-    }
-    
-    public void drawPauseScreen() {
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
-        resumeButton.setDisable(false);
-        this.resumeButton.requestFocus();
     }
     
     public void drawEndScreen(String winner) {
@@ -112,7 +84,7 @@ public class MenuView extends MenuViewBase {
         setTransparent(true);
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, label, returnToMainMenuButton);
+        this.getChildren().addAll(getMenuGameTitle(), label, returnToMainMenuButton);
     
         returnToMainMenuButton.requestFocus();
     }
@@ -124,9 +96,6 @@ public class MenuView extends MenuViewBase {
     }
     
     private void initMenuElements() {
-        menuGameTitle = drawTitle();
-        menuGameTitle.setId("gameTitle");
-        
         resumeButton = new Button("Resume Game");
         resumeButton.getStyleClass().add("menuButton");
         handledNodes.add(resumeButton);
@@ -157,14 +126,6 @@ public class MenuView extends MenuViewBase {
         versusAIButton.getStyleClass().add("menuButton");
         handledNodes.add(versusAIButton);
         
-        normalGameButton = new Button("Normal Game");
-        normalGameButton.getStyleClass().add("menuButton");
-        handledNodes.add(normalGameButton);
-        
-        speedGameButton = new Button("Speed Game");
-        speedGameButton.getStyleClass().add("menuButton");
-        handledNodes.add(speedGameButton);
-        
         cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("menuButton");
         handledNodes.add(cancelButton);
@@ -173,53 +134,28 @@ public class MenuView extends MenuViewBase {
     private void initEnterNameScreen() {
         Label playerOneLabel = new Label("Player One [Black}");
         playerOneLabel.getStyleClass().add("nameLabel");
-        
         playerOneName = new TextField();
         playerOneName.getStyleClass().add("nameField");
         playerOneName.setPromptText("Enter Name");
         handledNodes.add(playerOneName);
-        
         playerOneError = new Label();
         playerOneError.getStyleClass().add("nameError");
-        
         VBox playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
         playerOneNameBox.getStyleClass().add("nameBox");
         
         Label playerTwoLabel = new Label("Player Two [White}");
         playerTwoLabel.getStyleClass().add("nameLabel");
-        
         playerTwoName = new TextField();
         playerTwoName.getStyleClass().add("nameField");
         playerTwoName.setPromptText("Enter Name");
         handledNodes.add(playerTwoName);
-        
         playerTwoError = new Label();
         playerTwoError.getStyleClass().add("nameError");
-        
         VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
         playerTwoNameBox.getStyleClass().add("nameBox");
         
         namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
         namesWrapper.setId("namesWrapper");
-        
-        playButton = new Button("Play");
-        playButton.getStyleClass().add("nameButton");
-        handledNodes.add(playButton);
-        
-        backButton = new Button("Go Back");
-        backButton.getStyleClass().add("nameButton");
-        handledNodes.add(backButton);
-        
-        buttonsWrapper = new HBox(playButton, backButton);
-        buttonsWrapper.setId("buttonsWrapper");
-    }
-    
-    public List<Node> getHandledNodes() {
-        return handledNodes;
-    }
-    
-    public TextFlow getMenuGameTitle() {
-        return menuGameTitle;
     }
     
     public Button getResumeButton() {
@@ -250,14 +186,6 @@ public class MenuView extends MenuViewBase {
         return versusAIButton;
     }
     
-    public Button getNormalGameButton() {
-        return normalGameButton;
-    }
-    
-    public Button getSpeedGameButton() {
-        return speedGameButton;
-    }
-    
     public Button getCancelButton() {
         return cancelButton;
     }
@@ -278,30 +206,7 @@ public class MenuView extends MenuViewBase {
         return playerTwoError;
     }
     
-    public Button getPlayButton() {
-        return playButton;
-    }
-    
-    public Button getBackButton() {
-        return backButton;
-    }
-    
     public Button getReturnToMainMenuButton() {
         return returnToMainMenuButton;
-    }
-    
-    public HBox getButtonsWrapper() {
-        return buttonsWrapper;
-    }
-    
-    private Text drawLetter(String name, Colors color) {
-        Text letter = new Text(name);
-        letter.setFill(color.getValue());
-        letter.getStyleClass().add("titleLetter");
-        return letter;
-    }
-    
-    private TextFlow drawTitle() {
-        return new TextFlow(drawLetter("K", Colors.ORANGE), drawLetter("A", Colors.NAVY), drawLetter("M", Colors.BLUE), drawLetter("I", Colors.PINK), drawLetter("S", Colors.YELLOW), drawLetter("A", Colors.RED), drawLetter("D", Colors.GREEN), drawLetter("O", Colors.BROWN));
     }
 }

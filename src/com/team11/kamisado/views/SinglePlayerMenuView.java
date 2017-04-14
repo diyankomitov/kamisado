@@ -8,7 +8,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class SinglePlayerMenuView extends MenuViewBase {
     
@@ -18,19 +18,15 @@ public class SinglePlayerMenuView extends MenuViewBase {
     private RadioButton easyRadio;
     private RadioButton hardRadio;
     private VBox difficultyRadioWrapper;
-    private RadioButton normalRadio;
-    private RadioButton speedRadio;
-    private VBox modeRadioWrapper;
     private RadioButton blackRadio;
     private RadioButton whiteRadio;
     private VBox colorRadioWrapper;
-    private MenuView menuView;
     
-    private ArrayList<Node> handledNodes;
+    private List<Node> handledNodes;
     
-    public SinglePlayerMenuView(MenuView menuView) {
-        this.menuView = menuView;
-        this.handledNodes = new ArrayList<>();
+    public SinglePlayerMenuView() {
+        super();
+        this.handledNodes = getHandledNodes();
         
         initSinglePlayerScreen();
         
@@ -40,7 +36,7 @@ public class SinglePlayerMenuView extends MenuViewBase {
     
     public void drawSinglePlayerScreen() {
         this.getChildren().clear();
-        this.getChildren().addAll(menuView.getMenuGameTitle(), singlePlayerNameWrapper, difficultyRadioWrapper, modeRadioWrapper, colorRadioWrapper, menuView.getButtonsWrapper());
+        this.getChildren().addAll(getMenuGameTitle(), singlePlayerNameWrapper, colorRadioWrapper, difficultyRadioWrapper, getModeRadioWrapper(), getButtonsWrapper());
     }
     
     private void initSinglePlayerScreen() {
@@ -54,6 +50,24 @@ public class SinglePlayerMenuView extends MenuViewBase {
         singlePlayerError.getStyleClass().add("nameError");
         singlePlayerNameWrapper = new VBox(singlePlayerLabel, singlePlayerName, singlePlayerError);
         singlePlayerNameWrapper.setId("singlePlayerNameWrapper");
+    
+        Label colorRadioLabel = new Label("Select your color");
+        colorRadioLabel.getStyleClass().add("nameLabel");
+        ToggleGroup colorToggleGroup = new ToggleGroup();
+        blackRadio = new RadioButton("Black");
+        blackRadio.getStyleClass().add("radioButton");
+        blackRadio.setToggleGroup(colorToggleGroup);
+        blackRadio.setSelected(true);
+        handledNodes.add(blackRadio);
+        whiteRadio = new RadioButton("White");
+        whiteRadio.getStyleClass().add("radioButton");
+        whiteRadio.setToggleGroup(colorToggleGroup);
+        handledNodes.add(whiteRadio);
+        HBox radioBox = new HBox(blackRadio, whiteRadio);
+        radioBox.getStyleClass().add("radioBox");
+        colorRadioWrapper = new VBox(colorRadioLabel, radioBox);
+        colorRadioWrapper.getStyleClass().add("radioWrapper");
+        colorRadioWrapper.setId("colorRadioWrapper");
         
         Label difficultyLabel = new Label("Select the difficulty");
         difficultyLabel.getStyleClass().add("nameLabel");
@@ -72,40 +86,6 @@ public class SinglePlayerMenuView extends MenuViewBase {
         difficultyRadioWrapper = new VBox(difficultyLabel, difficultyRadioBox);
         difficultyRadioWrapper.getStyleClass().add("radioWrapper");
         
-        Label modeLabel = new Label("Select the game mode");
-        modeLabel.getStyleClass().add("nameLabel");
-        ToggleGroup modeToggleGroup = new ToggleGroup();
-        normalRadio = new RadioButton("Normal");
-        normalRadio.getStyleClass().add("radioButton");
-        normalRadio.setToggleGroup(modeToggleGroup);
-        normalRadio.setSelected(true);
-        handledNodes.add(normalRadio);
-        speedRadio = new RadioButton("Speed");
-        speedRadio.getStyleClass().add("radioButton");
-        speedRadio.setToggleGroup(modeToggleGroup);
-        handledNodes.add(speedRadio);
-        HBox modeRadioBox = new HBox(normalRadio, speedRadio);
-        modeRadioBox.getStyleClass().add("radioBox");
-        modeRadioWrapper = new VBox(modeLabel, modeRadioBox);
-        modeRadioWrapper.getStyleClass().add("radioWrapper");
-        
-        Label colorRadioLabel = new Label("Select your color");
-        colorRadioLabel.getStyleClass().add("nameLabel");
-        ToggleGroup colorToggleGroup = new ToggleGroup();
-        blackRadio = new RadioButton("Black");
-        blackRadio.getStyleClass().add("radioButton");
-        blackRadio.setToggleGroup(colorToggleGroup);
-        blackRadio.setSelected(true);
-        handledNodes.add(blackRadio);
-        whiteRadio = new RadioButton("White");
-        whiteRadio.getStyleClass().add("radioButton");
-        whiteRadio.setToggleGroup(colorToggleGroup);
-        handledNodes.add(whiteRadio);
-        HBox radioBox = new HBox(blackRadio, whiteRadio);
-        radioBox.getStyleClass().add("radioBox");
-        colorRadioWrapper = new VBox(colorRadioLabel, radioBox);
-        colorRadioWrapper.getStyleClass().add("radioWrapper");
-        colorRadioWrapper.setId("colorRadioWrapper");
     }
     
     public TextField getSinglePlayerName() {
@@ -124,23 +104,11 @@ public class SinglePlayerMenuView extends MenuViewBase {
         return hardRadio;
     }
     
-    public RadioButton getNormalRadio() {
-        return normalRadio;
-    }
-    
-    public RadioButton getSpeedRadio() {
-        return speedRadio;
-    }
-    
     public RadioButton getBlackRadio() {
         return blackRadio;
     }
     
     public RadioButton getWhiteRadio() {
         return whiteRadio;
-    }
-    
-    public ArrayList<Node> getHandledNodes() {
-        return handledNodes;
     }
 }

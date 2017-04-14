@@ -24,6 +24,10 @@ public class SaveManager {
         new File(SAVE_FILE).delete();
     }
     
+    public static boolean fileExists() {
+        return new File(SAVE_FILE).exists();
+    }
+    
     public static ArrayList<Serializable> loadFromFile() {
         try {
             FileInputStream fileInputStream = new FileInputStream(SAVE_FILE);
