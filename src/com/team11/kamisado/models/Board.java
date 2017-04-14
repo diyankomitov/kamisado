@@ -1,7 +1,6 @@
 package com.team11.kamisado.models;
 
 import com.team11.kamisado.util.Coordinates;
-import com.team11.kamisado.views.BoardPane;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -9,25 +8,25 @@ import java.util.List;
 
 import static com.team11.kamisado.models.Towers.*;
 
-public class Board implements Serializable{
+public class Board implements Serializable {
+    public static final int BOARD_LENGTH = 8;
+    
     private Coordinates currentCoordinates;
     private Coordinates moveCoordinates;
     private Coordinates oldCoordinates;
+    private ArrayList<Coordinates> validCoordinates;
     
     private final Player playerOne;
     private final Player playerTwo;
-    
     private Player currentPlayer;
     private Player winner;
     
+    private String currentSquare;
     private final String[][] squareArray;
-    
     private Towers[][] towerArray;
     
-    private String currentSquare;
-    private ArrayList<Coordinates> validCoordinates;
     private boolean firstMove;
-    private boolean hasWon;
+    private boolean win;
     private boolean deadlock;
     private boolean lock;
     
@@ -49,14 +48,13 @@ public class Board implements Serializable{
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
             {EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY},
-            {WHITEBROWN, WHITEGREEN, WHITERED, WHITEYELLOW, WHITEPINK, WHITEBLUE, WHITENAVY, WHITEORANGE}
-        };
+            {WHITEBROWN, WHITEGREEN, WHITERED, WHITEYELLOW, WHITEPINK, WHITEBLUE, WHITENAVY, WHITEORANGE}};
     
         this.oldCoordinates = new Coordinates();
         this.currentCoordinates = new Coordinates();
         this.moveCoordinates = new Coordinates();
         this.validCoordinates = new ArrayList<>();
-        this.hasWon = false;
+        this.win = false;
         this.playerOne = playerOne;
         this.playerTwo = playerTwo;
         this.currentPlayer = playerOne;
@@ -78,7 +76,7 @@ public class Board implements Serializable{
         this.squareArray = board.squareArray;
         this.currentSquare = board.currentSquare;
     
-        this.towerArray = new Towers[8][8];
+        this.towerArray = new Towers[BOARD_LENGTH][BOARD_LENGTH];
         int i = 0;
         for(Towers[] towers: board.towerArray) {
             int j = 0;
@@ -89,7 +87,7 @@ public class Board implements Serializable{
             i++;
         }
     
-        this.hasWon = board.hasWon;
+        this.win = board.win;
         this.firstMove = board.firstMove;
         this.lock = board.lock;
         this.deadlock = board.deadlock;
@@ -99,15 +97,15 @@ public class Board implements Serializable{
         
         
         List<Coordinates> tempCoordinates = board.getValidCoordinates();
-        
-        for(int index = 0; index < tempCoordinates.size(); index++) {
-            this.validCoordinates.add(tempCoordinates.get(index));
+    
+        for(Coordinates tempCoordinate : tempCoordinates) {
+            this.validCoordinates.add(tempCoordinate);
         }
     }
     
-    public void print() {
-        for(int y = 0; y<8; y++) {
-            for(int x = 0; x<8; x++) {
+    public void print() {                           //TODO: remove print
+        for(int y = 0; y<BOARD_LENGTH; y++) {
+            for(int x = 0; x<BOARD_LENGTH; x++) {
                 if(towerArray[y][x] != EMPTY) {
                     System.out.print(towerArray[y][x].getAbbreviation() + " | ");
                 }
@@ -120,9 +118,8 @@ public class Board implements Serializable{
         }
     }
     
-    public int move(int x, int y) {
+    public void move(int x, int y) {
         lock = false;
-        deadlock = false;
         
         oldCoordinates.setCoordinates(currentCoordinates.getX(), currentCoordinates.getY());
         moveCoordinates.setCoordinates(x, y);
@@ -135,38 +132,36 @@ public class Board implements Serializable{
         towerArray[newY][newX] = towerArray[oldY][oldX];
         towerArray[oldY][oldX] = EMPTY;
         
-        if(currentPlayer.getPlayerColor().equals("W") && moveCoordinates.getY() == 0 ||
-                currentPlayer.getPlayerColor().equals
-                ("B") && moveCoordinates.getY() == BoardPane.BOARD_LENGTH - 1) {
-            hasWon = true;
-            winner = currentPlayer.getPlayerColor().equals(playerOne.getPlayerColor()) ? playerOne : playerTwo;
-            return 1;
+        String currentPlayerColor = currentPlayer.getPlayerColor();
+        
+        if(currentPlayerColor.equals("W") && newY == 0 || currentPlayerColor.equals("B") && newY == BOARD_LENGTH - 1) {
+            win = true;
+            winner = currentPlayerColor.equals(playerOne.getPlayerColor()) ? playerOne : playerTwo;
         }
-        
-        switchCurrentPlayer();
-        setCurrentSquare(newX,newY);
-        setCurrentCoordinates();
-        
-        if(!setValidCoordinates()) {
+        else {
             switchCurrentPlayer();
-            setCurrentSquare(currentCoordinates.getX(),currentCoordinates.getY());
+            setCurrentSquare(newX,newY);
             setCurrentCoordinates();
-        
+    
             if(!setValidCoordinates()) {
-                deadlock = true;
-                winner = currentPlayer.getPlayerColor().equals(playerOne.getPlayerColor()) ? playerTwo : playerOne;
-                return 3;
-            }
-            lock = true;
-            return 2;
-        }
+                switchCurrentPlayer();
+                setCurrentSquare(currentCoordinates.getX(),currentCoordinates.getY());
+                setCurrentCoordinates();
         
-        return 0;
+                if(!setValidCoordinates()) {
+                    deadlock = true;
+                    winner = currentPlayerColor.equals(playerOne.getPlayerColor()) ? playerTwo : playerOne;
+                }
+                else {
+                    lock = true;
+                }
+            }
+        }
     }
     
     public void setCurrentCoordinates() {
-        for(int y = 0; y < 8; y++) {
-            for(int x = 0; x < 8; x++) {
+        for(int y = 0; y < BOARD_LENGTH; y++) {
+            for(int x = 0; x < BOARD_LENGTH; x++) {
                 if(towerArray[y][x].getAbbreviation().equals(currentPlayer.getPlayerColor() + currentSquare)) {
                     currentCoordinates.setCoordinates(x, y);
                 }
@@ -182,8 +177,8 @@ public class Board implements Serializable{
         currentPlayer = currentPlayer == playerOne ? playerTwo : playerOne;
     }
     
-    public boolean hasWon() {
-        return hasWon;
+    public boolean isWin() {
+        return win;
     }
     
     public boolean areValidCoordinates(int x, int y) {
@@ -201,7 +196,7 @@ public class Board implements Serializable{
         boolean canAddDiagPos = true;
         boolean canAddDiagNeg = true;
         
-        for(int i = 1; i < BoardPane.BOARD_LENGTH; i++) {
+        for(int i = 1; i < BOARD_LENGTH; i++) {
             int y = currentCoordinates.getY() + i * dY;
             
             dX = 0;
@@ -233,7 +228,7 @@ public class Board implements Serializable{
         }
     }
     
-    public boolean isTower(int x, int y) {
+    private boolean isTower(int x, int y) {
         try {
             return !towerArray[y][x].equals(EMPTY);
         }
@@ -244,10 +239,6 @@ public class Board implements Serializable{
     
     public Towers getTower(int x, int y) {
         return towerArray[y][x];
-    }
-    
-    public String getSquare(int x, int y) {
-        return squareArray[y][x];
     }
     
     public Coordinates getOldCoordinates() {
@@ -298,5 +289,13 @@ public class Board implements Serializable{
     }
     public Player getWinner() {
         return winner;
+    }
+    
+    public String[][] getSquareArray() {
+        return squareArray;
+    }
+    
+    public Towers[][] getTowerArray() {
+        return towerArray;
     }
 }

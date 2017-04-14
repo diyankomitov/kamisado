@@ -10,7 +10,6 @@ import javafx.scene.layout.VBox;
 
 public class GameView extends BorderPane {
     private StackPane root;
-    private Board board;
     private BoardPane boardPane;
     private Label messageLabel;
     private SquareView current;
@@ -24,7 +23,7 @@ public class GameView extends BorderPane {
     }
     
     public void initGameView() {
-        boardPane = new BoardPane(this, board);
+        boardPane = new BoardPane(this);
         boardPane.setId("boardPane");
         BorderPane.setMargin(boardPane, new Insets(BoardPane.BOARD_VIEW_MARGIN));
         
@@ -82,10 +81,6 @@ public class GameView extends BorderPane {
             current.setStroke(Colors.TRUEWHITE.getValue());
             boardPane.moveSelector(x,y);
         }
-    }
-    
-    public void setBoard(Board board) {
-        this.board = board;
     }
     
     public BoardPane getBoardPane() {

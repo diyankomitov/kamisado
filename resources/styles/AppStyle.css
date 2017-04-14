@@ -2,10 +2,17 @@
     -fx-font-family: Akashi;
 }
 
-/* Main Menu Styling */
-
-#menuView {
+.transparentMenu {
     -fx-background-color: #383838;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.transparentMenu:transparent {
+    -fx-background-color: rgba(56, 56, 56, 0.5)
+}
+
+/* Main Menu Styling */
+#menuView {
     -fx-alignment: baseline-center;
     -fx-fill-width: false;
     -fx-padding: 250,0,0,0;
@@ -73,7 +80,7 @@
 }
 
 #buttonsWrapper {
-    -fx-alignment: center-right;
+    -fx-alignment: inherit;
     -fx-spacing: 10;
 }
 
@@ -98,27 +105,34 @@
 
 
 /* AI enter name styling */
+
+#singlePlayerScreen {
+    -fx-alignment: center;
+    -fx-padding: 250,0,0,0;
+    -fx-spacing: 25;
+}
+
 .radioButton {
+    -fx-alignment: inherit;
     -fx-font-size: 20;
     -fx-text-fill: white;
 }
 
-#radioBox {
-    -fx-alignment: center;
+.radioBox {
+    -fx-alignment: inherit;
     -fx-spacing: 20;
 }
 
-#versusAINameWrapper {
-    -fx-spacing: 10;
+.radioWrapper {
+    -fx-alignment: inherit;
 }
 
-#AINameBox {
+#colorRadioWrapper {
+}
+
+#singlePlayerNameWrapper {
+    -fx-alignment: inherit;
     -fx-spacing: 20;
-    -fx-alignment: center;
-}
-
-#radioWrapper {
-    -fx-alignment: top-center;
 }
 
 /* Game screen styling */

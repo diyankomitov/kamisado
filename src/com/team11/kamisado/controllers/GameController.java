@@ -1,33 +1,29 @@
 package com.team11.kamisado.controllers;
 
 import com.team11.kamisado.AI.AIPlayer;
-import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
 import com.team11.kamisado.models.Towers;
 import com.team11.kamisado.util.Coordinates;
-import com.team11.kamisado.util.Observable;
-import com.team11.kamisado.util.Observer;
 import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.views.GameView;
 import javafx.scene.effect.GaussianBlur;
 
-import java.util.ArrayList;
 import java.util.EmptyStackException;
-import java.util.List;
 import java.util.Stack;
-import java.lang.System.*;
 
-public class GameController implements Observable{
+import static com.team11.kamisado.models.Board.BOARD_LENGTH;
+
+public class GameController {
     
     private static final int BLUR_RADIUS = 63;
     
     private MenuController menuController;
     private GameView view;
+    private BoardPane boardPane;
     private Board board;
     private int x;
     private int y;
-    private List<Observer> observers;
     private boolean AIOnTurn;
     private Stack<Board> boardStack;
     
@@ -40,19 +36,21 @@ public class GameController implements Observable{
         AIOnTurn = board.getCurrentPlayer() instanceof AIPlayer;
         
         this.view = gameView;
-        view.setBoard(board);
         view.initGameView();
         view.setNames(board.getPlayerOne().getName(), board.getPlayerTwo().getName());
-        view.setMessage(false, "Welcome to Kamisado!\n'" + board.getCurrentPlayer().getName() + "' please " +
-                "select a black tower to move");
-        this.observers = new ArrayList<>();
-        this.subscribe(view.getBoardPane());
+        view.setMessage(false, "Welcome to Kamisado!\n'" + board.getCurrentPlayer().getName() + "' please select a black tower to move");
+        
+        this.boardPane = view.getBoardPane();
+        boardPane = view.getBoardPane();
+        boardPane.drawSquares(board.getSquareArray());
+        boardPane.drawTowers(board.getTowerArray());
+        boardPane.initSelector();
         
         if(!board.isFirstMove()) {
             x = board.getCurrentCoordinates().getX();
             y = board.getCurrentCoordinates().getY();
             view.setCurrent(x,y);
-            view.getBoardPane().moveSelector(x, y);
+            boardPane.moveSelector(x, y);
         }
     }
     
@@ -88,34 +86,22 @@ public class GameController implements Observable{
     private void handleKeyPressed() {
         view.setOnKeyPressed(event -> {
             switch(event.getCode()) {
+                case UP:
+                    y -=  y >0 ? 1 : 0;
+                    break;
+                case DOWN:
+                    y += y < BOARD_LENGTH-1 ? 1 : 0;
+                    break;
+                case LEFT:
+                    x -= x > 0 ? 1 : 0;
+                    break;
+                case RIGHT:
+                    x += x < BOARD_LENGTH-1 ? 1 : 0;
+                    break;
                 case ESCAPE: {
                     this.onEscape();
                     break;
                 }
-                case UP:
-                    if(y > 0) {
-                        y--;
-                    }
-                    view.getBoardPane().moveSelector(x, y);
-                    break;
-                case DOWN:
-                    if(y < BoardPane.BOARD_LENGTH - 1) {
-                        y++;
-                    }
-                    view.getBoardPane().moveSelector(x, y);
-                    break;
-                case LEFT:
-                    if(x > 0) {
-                        x--;
-                    }
-                    view.getBoardPane().moveSelector(x, y);
-                    break;
-                case RIGHT:
-                    if(x < BoardPane.BOARD_LENGTH - 1) {
-                        x++;
-                    }
-                    view.getBoardPane().moveSelector(x, y);
-                    break;
                 case ENTER:
                     this.onEnter();
                     break;
@@ -125,11 +111,21 @@ public class GameController implements Observable{
                     }
                     break;
                 case A:
-                    if(event.isControlDown() && event.isShiftDown()) {      //AI test
+                    if(event.isControlDown() && event.isShiftDown()) {      //TODO: remove AI test
                         AIPlayer player = new AIPlayer("Blah", "Blah", 0);
                         Coordinates aiToMove = player.getCoordinates(this);
                     }
                     break;
+                default:
+                    break;
+            }
+            
+            switch(event.getCode()) {
+                case UP:
+                case DOWN:
+                case LEFT:
+                case RIGHT:
+                    boardPane.moveSelector(x, y);
             }
         });
     }
@@ -168,10 +164,9 @@ public class GameController implements Observable{
             }
         }
         else {
-            int code;
             if(board.areValidCoordinates(x, y)) {
-                code = board.move(x, y);
-                this.notifyAllObservers();
+                board.move(x, y);
+                view.getBoardPane().update(board.getOldCoordinates(), board.getMoveCoordinates());
             }
             else if(board.getTower(x,y) == Towers.EMPTY){
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
@@ -183,24 +178,22 @@ public class GameController implements Observable{
                 return;
             }
             
-            if(code == 0) {
-                x = board.getCurrentCoordinates().getX();
-                y = board.getCurrentCoordinates().getY();
-                view.setMessage(false, "'" + board.getCurrentPlayer().getName() + "' you are now on turn\nplease select a square to move to");
-                view.setCurrent(x,y);
-            }
-            else if(code == 1) {
+            if(board.isWin()) {
                 this.winGame(board.getCurrentPlayer());
-                return;
             }
-            else if(code == 2) {
+            else if(board.isDeadlock()) {
+                this.winGame(board.getOtherPlayer());
+            }
+            else if(board.isLock()) {
                 x = board.getCurrentCoordinates().getX();
                 y = board.getCurrentCoordinates().getY();
                 view.setMessage(true, "'" + board.getCurrentPlayer().getName() + "' it is your turn again since your opponent had no valid moves.\nPlease select a square to move to.");
             }
-            else if(code == 3) {
-                this.winGame(board.getOtherPlayer());
-                return;
+            else {
+                x = board.getCurrentCoordinates().getX();
+                y = board.getCurrentCoordinates().getY();
+                view.setMessage(false, "'" + board.getCurrentPlayer().getName() + "' you are now on turn\nplease select a square to move to");
+                view.setCurrent(x,y);
             }
         }
         
@@ -220,34 +213,8 @@ public class GameController implements Observable{
         return board;
     }
     
-    public void subscribe(Observer observer) {
-        observers.add(observer);
-    }
-    
-    @Override
-    public void unsubscribe(Observer observer) {
-        observers.remove(observer);
-    }
-    
-    @Override
-    public void notifyAllObservers() {
-        for(Observer observer : observers) {
-            observer.update();
-        }
-    }
-    
     public void setStack(Stack<Board> stack) {
         this.boardStack = stack;
-    }
-    
-    public void undoAgain() {
-        try {
-            board = boardStack.pop();
-            menuController.undo(board, boardStack);
-        }
-        catch(EmptyStackException e) {
-            view.setMessage(true, "You can't undo anymore, you've reached the start of the game!");
-        }
     }
     
     public Stack<Board> getBoardStack() {

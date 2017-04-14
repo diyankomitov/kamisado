@@ -31,7 +31,7 @@ public class MiniMax {
     
         if(depth != 3) {
             for(AIState child : parent.getChildren()) {
-                if(!child.getBoard().hasWon() && !child.getBoard().isLock()) {
+                if(!child.getBoard().isWin() && !child.getBoard().isLock()) {
                     generateTree(child, depth + 1);
                 }
             }

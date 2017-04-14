@@ -7,12 +7,13 @@ import com.team11.kamisado.models.Player;
 import com.team11.kamisado.util.SaveManager;
 import com.team11.kamisado.views.GameView;
 import com.team11.kamisado.views.MenuView;
+import com.team11.kamisado.views.SinglePlayerMenuView;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.input.InputEvent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 
-import java.io.File;
 import java.util.Stack;
 
 import static javafx.scene.input.KeyCode.ENTER;
@@ -29,16 +30,25 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean gameInProgress;
     private boolean AIGame;
     private int difficulty;
+    private SinglePlayerMenuView singlePlayerMenuView;
     
-    public MenuController(KamisadoApp application) {
+    public MenuController(KamisadoApp application, MenuView menuView) {
         this.application = application;
-        isPaused = false;
-        isSpeed = false;
-        AIGame = false;
-    }
-    
-    public void addView(MenuView view) {
-        this.view = view;
+        this.isPaused = false;
+        this.isSpeed = false;
+        this.AIGame = false;
+        
+        this.view = menuView;
+        for(Node node : view.getHandledNodes()) {
+            node.setOnKeyPressed(this);
+            node.setOnMouseClicked(this);
+        }
+        
+        this.singlePlayerMenuView = new SinglePlayerMenuView(view);
+        for(Node node : singlePlayerMenuView.getHandledNodes()) {
+            node.setOnKeyPressed(this);
+            node.setOnMouseClicked(this);
+        }
     }
     
     @Override
@@ -68,22 +78,49 @@ public class MenuController implements EventHandler<InputEvent> {
             }
             else if(source == view.getVersusAIButton()) {
                 AIGame = true;
-                view.drawSelectDifficultyScreen();
+                System.out.println("you pressed ai button");
+                singlePlayerMenuView.drawSinglePlayerScreen();
+                application.getRoot().getChildren().clear();
+                application.getRoot().getChildren().add(singlePlayerMenuView);
+                if(isPaused) {
+                    singlePlayerMenuView.setTransparent(true);
+                }
+                else {
+                    singlePlayerMenuView.setTransparent(false);
+                }
             }
-            else if(source == view.getEasyButton()) {
-                difficulty = 0;
-                view.drawSpeedSelectScreen();
+            
+            else if(source == singlePlayerMenuView.getSinglePlayerName()) {
+                if(singlePlayerMenuView.getSinglePlayerName().getText().equals("")) {
+                    singlePlayerMenuView.getSinglePlayerError().setText("Please enter a player name");
+                }
+                else {
+                    singlePlayerMenuView.getSinglePlayerError().setText("");
+                    singlePlayerMenuView.getEasyRadio().requestFocus();
+                }
             }
-            else if(source == view.getHardButton()) {
-                difficulty = 1;
-                view.drawSpeedSelectScreen();
+            else if(source == singlePlayerMenuView.getEasyRadio()) {
+                singlePlayerMenuView.getEasyRadio().setSelected(true);
+                singlePlayerMenuView.getNormalRadio().requestFocus();
             }
-            else if(source == view.getWhiteRadio()) {
-                view.getWhiteRadio().setSelected(true);
+            else if(source == singlePlayerMenuView.getHardRadio()) {
+                singlePlayerMenuView.getHardRadio().setSelected(true);
+                singlePlayerMenuView.getNormalRadio().requestFocus();
+            }
+            else if(source == singlePlayerMenuView.getNormalRadio()) {
+                singlePlayerMenuView.getNormalRadio().setSelected(true);
+                singlePlayerMenuView.getBlackRadio().requestFocus();
+            }
+            else if(source == singlePlayerMenuView.getSpeedRadio()) {
+                singlePlayerMenuView.getSpeedRadio().setSelected(true);
+                singlePlayerMenuView.getBlackRadio().requestFocus();
+            }
+            else if(source == singlePlayerMenuView.getBlackRadio()) {
+                singlePlayerMenuView.getBlackRadio().setSelected(true);
                 view.getPlayButton().requestFocus();
             }
-            else if(source == view.getBlackRadio()) {
-                view.getBlackRadio().setSelected(true);
+            else if(source == singlePlayerMenuView.getWhiteRadio()) {
+                singlePlayerMenuView.getWhiteRadio().setSelected(true);
                 view.getPlayButton().requestFocus();
             }
             else if(source == view.getCancelButton()) {
@@ -96,21 +133,11 @@ public class MenuController implements EventHandler<InputEvent> {
             }
             else if(source == view.getNormalGameButton()) {
                 isSpeed = false;
-                if(AIGame) {
-                    view.drawEnterNameVersusAIScreen();
-                }
-                else {
-                    view.drawEnterNameScreen();
-                }
+                view.drawEnterNameScreen();
             }
             else if(source == view.getSpeedGameButton()) {
                 isSpeed = true;
-                if(AIGame) {
-                    view.drawEnterNameVersusAIScreen();
-                }
-                else {
-                    view.drawEnterNameScreen();
-                }
+                view.drawEnterNameScreen();
             }
             else if(source == view.getPlayButton()) {
                 this.onPlayButton();
@@ -122,6 +149,8 @@ public class MenuController implements EventHandler<InputEvent> {
                 this.onPlayerTwoName();
             }
             else if(source == view.getBackButton()) {
+                application.getRoot().getChildren().clear();
+                application.getRoot().getChildren().add(view);
                 view.drawSelectModeScreen();
             }
             else if(source == view.getResumeButton()) {
@@ -141,11 +170,11 @@ public class MenuController implements EventHandler<InputEvent> {
             Board board = (Board) SaveManager.loadFromFile().get(0);
             isSpeed = (boolean) SaveManager.loadFromFile().get(1);
             Stack<Board> stack = (Stack<Board>) SaveManager.loadFromFile().get(3);
-        
+            
             GameView gameView = new GameView(application.getRoot());
-        
+            
             if(isSpeed) {
-                gameController = new SpeedGameController(this, gameView, board, (Integer) SaveManager.loadFromFile().get(2));
+                gameController = new SpeedGameController(this, gameView, board, (Integer)SaveManager.loadFromFile().get(2));
             }
             else {
                 gameController = new GameController(this, gameView, board);
@@ -186,13 +215,27 @@ public class MenuController implements EventHandler<InputEvent> {
         Player playerTwo = null;
         
         if(AIGame) {
-            if(view.getBlackRadio().isSelected()) {
-                playerOne = new Player(view.getPlayerOneName().getText(), "B");
+            if(singlePlayerMenuView.getEasyRadio().isSelected()) {
+                difficulty = 0;
+            }
+            else if(singlePlayerMenuView.getHardRadio().isSelected()) {
+                difficulty = 1;
+            }
+            
+            if(singlePlayerMenuView.getNormalRadio().isSelected()) {
+                isSpeed = false;
+            }
+            else if(singlePlayerMenuView.getSpeedRadio().isSelected()) {
+                isSpeed = true;
+            }
+            
+            if(singlePlayerMenuView.getBlackRadio().isSelected()) {
+                playerOne = new Player(singlePlayerMenuView.getSinglePlayerName().getText(), "B");
                 playerTwo = new AIPlayer("AI", "W", difficulty);
             }
-            else if(view.getWhiteRadio().isSelected()) {
+            else if(singlePlayerMenuView.getWhiteRadio().isSelected()) {
                 playerOne = new AIPlayer("AI", "B", difficulty);
-                playerTwo = new Player(view.getPlayerOneName().getText(), "W");
+                playerTwo = new Player(singlePlayerMenuView.getSinglePlayerName().getText(), "W");
             }
         }
         else {
@@ -219,15 +262,10 @@ public class MenuController implements EventHandler<InputEvent> {
             view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a player name");
         }
         else if(pOneName.equals(pTwoName)) {
-            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a different name than Player Two");
+            view.drawNameErrorMessage(view.getPlayerOneError(), "Please enter a different name than Player Two"); //TODO: don't allow play if names entered wrong
         }
         else {
-            if(AIGame) {
-                view.getBlackRadio().requestFocus();
-            }
-            else {
-                view.getPlayerTwoName().requestFocus();
-            }
+            view.getPlayerTwoName().requestFocus();
             view.drawNameErrorMessage(view.getPlayerOneError(), "");
         }
     }
@@ -250,10 +288,9 @@ public class MenuController implements EventHandler<InputEvent> {
         if(gameInProgress) {
             
             Board board = gameController.getBoard();
-    
             int time = gameController instanceof SpeedGameController ?
                     ((SpeedGameController) gameController).getCurrentTime() : 0;
-    
+            
             SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack());
         }
         application.getStage().close();
