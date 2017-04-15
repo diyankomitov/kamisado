@@ -34,6 +34,7 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean isSpeed;
     private boolean gameInProgress;
     private boolean AIGame;
+    private boolean onlineGame;
     private int difficulty;
     
     public MenuController(KamisadoApp application, MenuView menuView) {
@@ -42,6 +43,7 @@ public class MenuController implements EventHandler<InputEvent> {
         this.isPaused = false;
         this.isSpeed = false;
         this.AIGame = false;
+        this.onlineGame = false;
         
         this.menuView = menuView;
         for(Node node : this.menuView.getHandledNodes()) {
@@ -80,10 +82,28 @@ public class MenuController implements EventHandler<InputEvent> {
             }
             else if(source == menuView.getVersusPlayerButton()) {
                 AIGame = false;
-                menuView.drawEnterNameScreen();
+                menuView.drawMultiplayerModeScreen();
                 view = menuView;
             }
+            else if(source == menuView.getOnlineButton()) {
+                onlineGame = true;
+                menuView.drawOnlineScreen();
+                menuView.getHostButton().setSelected(false);
+                view.getBlackRadio().setDisable(true);
+                view.getWhiteRadio().setDisable(true);
+            }
+            else if(source == menuView.getHostButton()) {
+                boolean isSelected = menuView.getHostButton().isSelected();
+                menuView.getHostButton().setSelected(!isSelected);
+                view.getBlackRadio().setDisable(isSelected);
+                view.getWhiteRadio().setDisable(isSelected);
+            }
+            else if(source == menuView.getLocalButton()) {
+                menuView.drawEnterNameScreen();
+            }
             else if(source == menuView.getVersusAIButton()) {
+                view.getBlackRadio().setDisable(true);
+                view.getWhiteRadio().setDisable(true);
                 AIGame = true;
                 singlePlayerMenuView.setTransparent(isPaused);
                 root.getChildren().remove(menuView);
@@ -91,20 +111,35 @@ public class MenuController implements EventHandler<InputEvent> {
                 singlePlayerMenuView.drawSinglePlayerScreen();
                 view = singlePlayerMenuView;
             }
-            else if(source == singlePlayerMenuView.getSinglePlayerName()) {
-                if(singlePlayerMenuView.getSinglePlayerName().getText().equals("")) {
-                    singlePlayerMenuView.getSinglePlayerError().setText("Please enter a player name");
+            else if(source == view.getSinglePlayerName()) {
+                if(view.getSinglePlayerName().getText().equals("")) {
+                    view.getSinglePlayerError().setText("Please enter a player name");
                 }
                 else {
-                    singlePlayerMenuView.getSinglePlayerError().setText("");
-                    singlePlayerMenuView.getEasyRadio().requestFocus();
+                    view.getSinglePlayerError().setText("");
+                    if(view == singlePlayerMenuView) {
+                        singlePlayerMenuView.getEasyRadio().requestFocus();
+                    }
+                    else {
+                        menuView.getHostButton().requestFocus();
+                    }
                 }
             }
-            else if(source == singlePlayerMenuView.getBlackRadio()) {
-                singlePlayerMenuView.getEasyRadio().requestFocus();
+            else if(source == view.getBlackRadio()) {
+                if(view == singlePlayerMenuView) {
+                    singlePlayerMenuView.getEasyRadio().requestFocus();
+                }
+                else {
+                    view.getBlackRadio().requestFocus();
+                }
             }
-            else if(source == singlePlayerMenuView.getWhiteRadio()) {
-                singlePlayerMenuView.getEasyRadio().requestFocus();
+            else if(source == view.getWhiteRadio()) {
+                if(view == singlePlayerMenuView) {
+                    singlePlayerMenuView.getEasyRadio().requestFocus();
+                }
+                else {
+                    view.getBlackRadio().requestFocus();
+                }
             }
             else if(source == singlePlayerMenuView.getEasyRadio()) {
                 singlePlayerMenuView.getNormalRadio().requestFocus();
@@ -113,7 +148,6 @@ public class MenuController implements EventHandler<InputEvent> {
                 singlePlayerMenuView.getNormalRadio().requestFocus();
             }
             else if(source == view.getNormalRadio()) {
-                
                 view.getPlayButton().requestFocus();
             }
             else if(source == view.getSpeedRadio()) {
@@ -124,14 +158,19 @@ public class MenuController implements EventHandler<InputEvent> {
             }
             else if(source == view.getBackButton()) {
                 if(view == singlePlayerMenuView) {
+                    menuView.drawSelectModeScreen();
                     root.getChildren().remove(singlePlayerMenuView);
                 }
+                else {
+                    menuView.drawMultiplayerModeScreen();
+                    root.getChildren().remove(menuView);
+                }
+                
                 if(!isPaused) {
                     root.getChildren().clear();
                 }
                 root.getChildren().add(menuView);
                 menuView.setTransparent(isPaused);
-                menuView.drawSelectModeScreen();
                 view = menuView;
             }
             else if(source == menuView.getCancelButton()) {
@@ -210,6 +249,8 @@ public class MenuController implements EventHandler<InputEvent> {
     private void onPlayButton() {
         Player playerOne = null;
         Player playerTwo = null;
+        
+        
         
         if(AIGame) {
             if(singlePlayerMenuView.getEasyRadio().isSelected()) {

@@ -3,6 +3,7 @@ package com.team11.kamisado.views;
 import com.team11.kamisado.util.SaveManager;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -33,6 +34,12 @@ public class MenuView extends MenuViewBase {
     private Button returnToMainMenuButton;
     
     private List<Node> handledNodes;
+    private Button onlineButton;
+    private Button localButton;
+    private CheckBox hostButton;
+    private TextField multiplayerName;
+    private Label multiplayerError;
+    private VBox multiplayerNameWrapper;
     
     public MenuView(StackPane root) {
         super();
@@ -42,6 +49,8 @@ public class MenuView extends MenuViewBase {
         
         initMenuElements();
         initPickModeScreen();
+        initMultplayerModeScreen();
+        initOnlineScreen();
         initEnterNameScreen();
         initEndScreen();
         
@@ -66,6 +75,16 @@ public class MenuView extends MenuViewBase {
     public void drawSelectModeScreen() {
         this.getChildren().clear();
         this.getChildren().addAll(getMenuGameTitle(), versusPlayerButton, versusAIButton, cancelButton);
+    }
+    
+    public void drawMultiplayerModeScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), onlineButton, localButton, cancelButton);
+    }
+    
+    public void drawOnlineScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), getSinglePlayerNameWrapper(), hostButton, getColorRadioWrapper(), getModeRadioWrapper(), getButtonsWrapper());
     }
     
     public void drawEnterNameScreen() {
@@ -131,6 +150,23 @@ public class MenuView extends MenuViewBase {
         handledNodes.add(cancelButton);
     }
     
+    private void initMultplayerModeScreen() {
+        onlineButton = new Button("Play Online");
+        onlineButton.getStyleClass().add("menuButton");
+        handledNodes.add(onlineButton);
+        
+        localButton = new Button("Play on this Computer");
+        localButton.getStyleClass().add("menuButton");
+        handledNodes.add(localButton);
+    }
+    
+    private void initOnlineScreen() {
+        hostButton = new CheckBox("Host a game");
+        hostButton.getStyleClass().add("checkButton");
+        handledNodes.add(hostButton);
+        
+    }
+    
     private void initEnterNameScreen() {
         Label playerOneLabel = new Label("Player One [Black}");
         playerOneLabel.getStyleClass().add("nameLabel");
@@ -158,6 +194,10 @@ public class MenuView extends MenuViewBase {
         namesWrapper.setId("namesWrapper");
     }
     
+    public CheckBox getHostButton() {
+        return hostButton;
+    }
+    
     public Button getResumeButton() {
         return resumeButton;
     }
@@ -180,6 +220,14 @@ public class MenuView extends MenuViewBase {
     
     public Button getVersusPlayerButton() {
         return versusPlayerButton;
+    }
+    
+    public Button getOnlineButton() {
+        return onlineButton;
+    }
+    
+    public Button getLocalButton() {
+        return localButton;
     }
     
     public Button getVersusAIButton() {

@@ -50,6 +50,12 @@
     -fx-spacing: 0;
 }
 
+/* Online screen styling */
+.checkButton {
+    -fx-font-size: 26;
+    -fx-text-fill: white;
+}
+
 /* Enter Name Screen Styling */
 #namesWrapper {
     -fx-alignment: inherit;
@@ -107,7 +113,7 @@
 }
 
 
-/* AI enter name styling */
+/* Single player screen styling*/
 
 #singlePlayerScreen {
     -fx-alignment: center;

@@ -5,6 +5,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -26,12 +27,30 @@ public class MenuViewBase extends VBox{
     private VBox modeRadioWrapper;
     private List<Node> handledNodes;
     
+    private RadioButton blackRadio;
+    private RadioButton whiteRadio;
+    private VBox colorRadioWrapper;
+    private TextField singlePlayerName;
+    private Label singlePlayerError;
+    private VBox singlePlayerNameWrapper;
+    
     public MenuViewBase() {
         handledNodes = new ArrayList<>();
     
         menuGameTitle = drawTitle();
         menuGameTitle.setId("gameTitle");
     
+        Label singlePlayerLabel = new Label("Player");
+        singlePlayerLabel.getStyleClass().add("nameLabel");
+        singlePlayerName = new TextField();
+        singlePlayerName.getStyleClass().add("nameField");
+        singlePlayerName.setPromptText("Enter Name");
+        handledNodes.add(singlePlayerName);
+        singlePlayerError = new Label("");
+        singlePlayerError.getStyleClass().add("nameError");
+        singlePlayerNameWrapper = new VBox(singlePlayerLabel, singlePlayerName, singlePlayerError);
+        singlePlayerNameWrapper.setId("singlePlayerNameWrapper");
+        
         playButton = new Button("Play");
         playButton.getStyleClass().add("nameButton");
         handledNodes.add(playButton);
@@ -57,6 +76,48 @@ public class MenuViewBase extends VBox{
         modeRadioBox.getStyleClass().add("radioBox");
         modeRadioWrapper = new VBox(modeLabel, modeRadioBox);
         modeRadioWrapper.getStyleClass().add("radioWrapper");
+    
+        Label colorRadioLabel = new Label("Select your color");
+        colorRadioLabel.getStyleClass().add("nameLabel");
+        ToggleGroup colorToggleGroup = new ToggleGroup();
+        blackRadio = new RadioButton("Black");
+        blackRadio.getStyleClass().add("radioButton");
+        blackRadio.setToggleGroup(colorToggleGroup);
+        blackRadio.setSelected(true);
+        handledNodes.add(blackRadio);
+        whiteRadio = new RadioButton("White");
+        whiteRadio.getStyleClass().add("radioButton");
+        whiteRadio.setToggleGroup(colorToggleGroup);
+        handledNodes.add(whiteRadio);
+        HBox radioBox = new HBox(blackRadio, whiteRadio);
+        radioBox.getStyleClass().add("radioBox");
+        colorRadioWrapper = new VBox(colorRadioLabel, radioBox);
+        colorRadioWrapper.getStyleClass().add("radioWrapper");
+        colorRadioWrapper.setId("colorRadioWrapper");
+    }
+    
+    public VBox getSinglePlayerNameWrapper() {
+        return singlePlayerNameWrapper;
+    }
+    
+    public TextField getSinglePlayerName() {
+        return singlePlayerName;
+    }
+    
+    public Label getSinglePlayerError() {
+        return singlePlayerError;
+    }
+    
+    public VBox getColorRadioWrapper() {
+        return colorRadioWrapper;
+    }
+    
+    public RadioButton getBlackRadio() {
+        return blackRadio;
+    }
+    
+    public RadioButton getWhiteRadio() {
+        return whiteRadio;
     }
     
     public VBox getModeRadioWrapper() {
