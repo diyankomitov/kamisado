@@ -103,21 +103,6 @@ public class Board implements Serializable {
         }
     }
     
-    public void print() {                           //TODO: remove print
-        for(int y = 0; y<BOARD_LENGTH; y++) {
-            for(int x = 0; x<BOARD_LENGTH; x++) {
-                if(towerArray[y][x] != EMPTY) {
-                    System.out.print(towerArray[y][x].getAbbreviation() + " | ");
-                }
-                else {
-                    System.out.print("  " + " | ");
-                }
-            }
-            System.out.println();
-            System.out.println("------------------------------------------");
-        }
-    }
-    
     public void move(int x, int y) {
         lock = false;
         
@@ -188,53 +173,32 @@ public class Board implements Serializable {
     public boolean setValidCoordinates() {
         validCoordinates.clear();
         
-        int dX = 0;
-        int dY = currentPlayer == playerOne ? 1 : -1;
-        int x = currentCoordinates.getX() + dX;
+        int[][] coordinateOffsets = new int[][]{{-1,+1, -2,+2, -3,+3, -4,+4, -5,+5, -6,+6, -7,+7},
+                                                {+0,+1, +0,+2, +0,+3, +0,+4, +0,+5, +0,+6, +0,+7},
+                                                {+1,+1, +2,+2, +3,+3, +4,+4, +5,+5, +6,+6, +7,+7},
+                                                {-1,-1, -2,-2, -3,-3, -4,-4, -5,-5, -6,-6, -7,-7},
+                                                {+0,-1, +0,-2, +0,-3, +0,-4, +0,-5, +0,-6, +0,-7},
+                                                {+1,-1, +2,-2, +3,-3, +4,-4, +5,-5, +6,-6, +7,-7}};
+    
+        int i = currentPlayer == playerOne ? 0 : 3;
+        int i1 = i+3;
         
-        boolean canAddForward = true;
-        boolean canAddDiagPos = true;
-        boolean canAddDiagNeg = true;
+        for(; i<i1; i++) {
+            for(int j = 0; j<coordinateOffsets[i].length; j++) {
+                int x = currentCoordinates.getX();
+                int y = currentCoordinates.getY();
+                x = x + coordinateOffsets[i][j];
+                y = y + coordinateOffsets[i][++j];
         
-        for(int i = 1; i < BOARD_LENGTH; i++) {
-            int y = currentCoordinates.getY() + i * dY;
-            
-            dX = 0;
-            if(!addToValidCoordinatesList(canAddForward, (x + (i * dX)), y)) {
-                canAddForward = false;
-            }
-            
-            dX = 1;
-            if(!addToValidCoordinatesList(canAddDiagPos, (x + (i * dX)), y)) {
-                canAddDiagPos = false;
-            }
-            
-            dX = -1;
-            if(!addToValidCoordinatesList(canAddDiagNeg, (x + (i * dX)), y)) {
-                canAddDiagNeg = false;
+                if(x>=0 && x<BOARD_LENGTH && y>=0 && y<BOARD_LENGTH && towerArray[y][x].equals(EMPTY)) {
+                    validCoordinates.add(new Coordinates(x,y));
+                }
+                else {
+                    break;
+                }
             }
         }
-        
         return validCoordinates.size() != 0;
-    }
-    
-    private boolean addToValidCoordinatesList(boolean add, int x, int y) {
-        if(!isTower(x, y) && add) {
-            validCoordinates.add(new Coordinates(x, y));
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
-    
-    private boolean isTower(int x, int y) {
-        try {
-            return !towerArray[y][x].equals(EMPTY);
-        }
-        catch(IndexOutOfBoundsException e) {
-            return true;
-        }
     }
     
     public Towers getTower(int x, int y) {
