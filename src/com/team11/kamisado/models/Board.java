@@ -19,13 +19,13 @@ public class Board implements Serializable {
     private Coordinates oldCoordinates;
     private ArrayList<Coordinates> validCoordinates;
     
-    private final Player playerOne;
-    private final Player playerTwo;
+    private Player playerOne;
+    private Player playerTwo;
     private Player currentPlayer;
     private Player winner;
     
     private String currentSquare;
-    private final String[][] squareArray;
+    private String[][] squareArray;
     private Towers[][] towerArray;
     
     private boolean firstMove;
@@ -68,8 +68,8 @@ public class Board implements Serializable {
     }
     
     public Board(Board board) {
-        this.playerOne = board.playerOne;
-        this.playerTwo = board.playerTwo;
+        this.playerOne = new Player(board.playerOne);
+        this.playerTwo = new Player(board.playerTwo);
         this.currentPlayer = new Player(board.currentPlayer);
         
         this.oldCoordinates = new Coordinates(board.oldCoordinates);
@@ -94,13 +94,11 @@ public class Board implements Serializable {
         this.firstMove = board.firstMove;
         this.lock = board.lock;
         this.deadlock = board.deadlock;
-        this.winner = board.winner;
-    
+        this.winner = null;
+        
+        
         this.validCoordinates = new ArrayList<>();
-        
-        
         List<Coordinates> tempCoordinates = board.getValidCoordinates();
-    
         for(Coordinates tempCoordinate : tempCoordinates) {
             this.validCoordinates.add(tempCoordinate);
         }
@@ -172,7 +170,7 @@ public class Board implements Serializable {
     }
     
     public void switchCurrentPlayer() {
-        currentPlayer = currentPlayer == playerOne ? playerTwo : playerOne;
+        currentPlayer = currentPlayer.getPlayerColor().equals(playerOne.getPlayerColor()) ? playerTwo : playerOne;
     }
     
     public boolean isWin() {
@@ -193,7 +191,7 @@ public class Board implements Serializable {
                                                 {+0,-1, +0,-2, +0,-3, +0,-4, +0,-5, +0,-6, +0,-7},
                                                 {+1,-1, +2,-2, +3,-3, +4,-4, +5,-5, +6,-6, +7,-7}};
     
-        int i = currentPlayer == playerOne ? 0 : 3;
+        int i = currentPlayer.getPlayerColor().equals("B") ? 0 : 3;
         int i1 = i+3;
         
         for(; i<i1; i++) {

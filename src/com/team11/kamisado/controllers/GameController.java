@@ -3,9 +3,9 @@ package com.team11.kamisado.controllers;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
 import com.team11.kamisado.models.Towers;
-import com.team11.kamisado.util.Coordinates;
 import com.team11.kamisado.util.GameMode;
 import com.team11.kamisado.views.BoardPane;
+import com.team11.kamisado.views.Colors;
 import com.team11.kamisado.views.GameView;
 import javafx.scene.effect.GaussianBlur;
 
@@ -34,7 +34,6 @@ public class GameController {
         
         boardStack = new Stack<>();
         
-        
         this.view = gameView;
         view.initGameView();
         view.setNames(board.getPlayerOne().getName(), board.getPlayerTwo().getName());
@@ -49,8 +48,7 @@ public class GameController {
         if(!board.isFirstMove()) {
             x = board.getCurrentCoordinates().getX();
             y = board.getCurrentCoordinates().getY();
-            view.setCurrent(x,y);
-            boardPane.moveSelector(x, y);
+            boardPane.setCurrent(x,y);
         }
     }
     
@@ -73,6 +71,13 @@ public class GameController {
 //            }
             board = boardStack.pop();
             boardPane.drawTowers(board.getTowerArray());
+            x = board.getCurrentCoordinates().getX();
+            y = board.getCurrentCoordinates().getY();
+            boardPane.setCurrent(x,y);
+            if(board.isFirstMove()) {
+                boardPane.getSquare(x,y).setStroke(Colors.TRUEBLACK.getValue());
+            }
+            view.setMessage(false, "You undid a move.\nYou can now move again");
         }
         catch(EmptyStackException e) {
             view.setMessage(true, "You can't undo anymore, you've reached the start of the game!");
@@ -128,20 +133,18 @@ public class GameController {
     }
     
     public void onEnter() {
-        saveBoard();
-    
+        
         x = board.getCurrentPlayer().getCoordinates().getX();
         y = board.getCurrentPlayer().getCoordinates().getY();
         
-        System.out.println("x: " + x + "y: " + y);
-    
         if(board.isFirstMove()) {
             if(y == 0) {
+                saveBoard();
                 board.setCurrentSquare(x, y);
-                view.setCurrent(x, y);
                 board.setCurrentCoordinates();
                 board.setValidCoordinates();
                 board.setFirstMoveToFalse();
+                boardPane.setCurrent(x, y);
                 view.setMessage(false, "Now please choose a square to move to");
             }
             else {
@@ -150,9 +153,9 @@ public class GameController {
         }
         else {
             if(board.areValidCoordinates(x, y)) {
+                saveBoard();
                 board.move(x, y);
-                System.out.println("boardx: " + board.getMoveCoordinates().getX() + "boardy: " + board.getMoveCoordinates().getY());
-                view.getBoardPane().update(board.getOldCoordinates(), board.getMoveCoordinates());
+                boardPane.update(board.getOldCoordinates(), board.getMoveCoordinates());
             }
             else if(board.getTower(x, y) == Towers.EMPTY) {
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
@@ -170,7 +173,6 @@ public class GameController {
                 this.winGame(board.getOtherPlayer());
             }
             else if(board.isLock()) {
-                System.out.println("lock happened");
                 x = board.getCurrentCoordinates().getX();
                 y = board.getCurrentCoordinates().getY();
                 view.setMessage(true, "'" + board.getCurrentPlayer().getName() + "' it is your turn again since your opponent had no valid moves.\nPlease select a square to move to.");
@@ -180,7 +182,7 @@ public class GameController {
                 x = board.getCurrentCoordinates().getX();
                 y = board.getCurrentCoordinates().getY();
                 view.setMessage(false, "'" + board.getCurrentPlayer().getName() + "' you are now on turn\nplease select a square to move to");
-                view.setCurrent(x, y);
+                boardPane.setCurrent(x, y);
             }
         }
     }

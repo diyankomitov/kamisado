@@ -12,7 +12,6 @@ public class GameView extends BorderPane {
     private StackPane root;
     private BoardPane boardPane;
     private Label messageLabel;
-    private SquareView current;
     private Label namesLabel;
     private VBox sidebar;
     private Label timer;
@@ -67,20 +66,6 @@ public class GameView extends BorderPane {
             messageLabel.setId("message");
         }
         messageLabel.setText(message);
-    }
-    
-    public void setCurrent(int x, int y) {
-        if(current == null) {
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-            boardPane.moveSelector(x,y);
-        }
-        else {
-            current.setStroke(Colors.TRUEBLACK.getValue());
-            current = boardPane.getSquare(x, y);
-            current.setStroke(Colors.TRUEWHITE.getValue());
-            boardPane.moveSelector(x,y);
-        }
     }
     
     public BoardPane getBoardPane() {

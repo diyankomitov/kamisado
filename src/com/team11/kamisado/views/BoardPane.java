@@ -22,6 +22,7 @@ public class BoardPane extends Pane {
     private TowerView[][] towers;
     
     private SquareView selector;
+    private SquareView current;
     private FadeTransition fadeTransition;
     
     public BoardPane(BorderPane parent) {
@@ -54,6 +55,20 @@ public class BoardPane extends Pane {
         fadeTransition.stop();
         selector.moveSquare(x, y);
         fadeTransition.play();
+    }
+    
+    public void setCurrent(int x, int y) {
+        if(current == null) {
+            current = this.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            this.moveSelector(x,y);
+        }
+        else {
+            current.setStroke(Colors.TRUEBLACK.getValue());
+            current = this.getSquare(x, y);
+            current.setStroke(Colors.TRUEWHITE.getValue());
+            this.moveSelector(x,y);
+        }
     }
     
     public SquareView getSquare(int x, int y) {
