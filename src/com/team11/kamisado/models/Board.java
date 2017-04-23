@@ -4,7 +4,10 @@ import com.team11.kamisado.util.Coordinates;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 import static com.team11.kamisado.models.Towers.*;
 
@@ -100,6 +103,16 @@ public class Board implements Serializable {
     
         for(Coordinates tempCoordinate : tempCoordinates) {
             this.validCoordinates.add(tempCoordinate);
+        }
+    }
+    
+    public void randomizeBoard() {
+        Arrays.asList(squareArray);
+        Collections.shuffle(Arrays.asList(squareArray));
+        
+        for(int i = 0; i <8; i++) {
+            towerArray[0][i] = Towers.getTower("B" + squareArray[0][i]);
+            towerArray[BOARD_LENGTH-1][i] = Towers.getTower("W" + squareArray[BOARD_LENGTH-1][i]);
         }
     }
     

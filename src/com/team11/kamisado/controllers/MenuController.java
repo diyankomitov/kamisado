@@ -223,19 +223,6 @@ public class MenuController implements EventHandler<InputEvent> {
         isPaused = false;
     }
     
-    public void undo(Board board, Stack<Board> boardStack) {
-        if(board.getCurrentPlayer().getPlayerColor().equals("B")) {
-            board.switchCurrentPlayer();
-        }
-        GameView gameView = new GameView(root);
-        gameController = null;
-        gameController = new GameController(this, gameView, board, gameMode);
-        gameController.play();
-        gameInProgress = true;
-        gameController.setStack(boardStack);
-        gameView.setMessage(false, "You undid a move.\nYou can now move again");
-    }
-    
     public void win(String winner) {
         SaveManager.deleteFile();
         gameInProgress = false;

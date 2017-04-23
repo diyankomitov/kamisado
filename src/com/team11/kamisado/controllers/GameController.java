@@ -26,7 +26,6 @@ public class GameController {
     private int x;
     private int y;
     private Stack<Board> boardStack;
-    private boolean online;
     
     public GameController(MenuController menuController, GameView gameView, Board board, GameMode gameMode) {
         this.gameMode = gameMode;
@@ -35,7 +34,6 @@ public class GameController {
         
         boardStack = new Stack<>();
         
-        online = false;
         
         this.view = gameView;
         view.initGameView();
@@ -74,8 +72,7 @@ public class GameController {
 //                boardStack.pop();
 //            }
             board = boardStack.pop();
-            menuController.undo(board, boardStack);
-           
+            boardPane.drawTowers(board.getTowerArray());
         }
         catch(EmptyStackException e) {
             view.setMessage(true, "You can't undo anymore, you've reached the start of the game!");
@@ -130,19 +127,8 @@ public class GameController {
         view.setEffect(new GaussianBlur(BLUR_RADIUS));
     }
     
-    public Coordinates getCoordinates() {
-        return new Coordinates(x,y);
-    }
-    
-    public void setCoordinates(Coordinates coordinates) {
-        x = coordinates.getX();
-        y = coordinates.getY();
-    }
-    
     public void onEnter() {
-        if(!online) {
-            saveBoard();
-        }
+        saveBoard();
     
         x = board.getCurrentPlayer().getCoordinates().getX();
         y = board.getCurrentPlayer().getCoordinates().getY();

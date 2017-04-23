@@ -32,6 +32,15 @@ public enum Towers implements Serializable{
         this.abbreviation = abbreviation;
     }
     
+    public static Towers getTower(String abbreviation) {
+        for(Towers tower: Towers.values()) {
+            if(tower.getAbbreviation().equals(abbreviation)) {
+                return tower;
+            }
+        }
+        return EMPTY;
+    }
+    
     public String getColor() {
         return color;
     }
