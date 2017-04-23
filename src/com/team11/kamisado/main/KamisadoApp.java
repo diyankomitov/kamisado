@@ -23,8 +23,8 @@ public class KamisadoApp extends Application {
         scene.getStylesheets().add("/styles/AppStyle.css");
         Font.loadFont(getClass().getResource("/fonts/Akashi.ttf").toString(), INITIALFONTSIZE);
         
-        primaryStage.setFullScreen(true);
-        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
+//        primaryStage.setFullScreen(true);
+//        primaryStage.setFullScreenExitKeyCombination(KeyCombination.NO_MATCH);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Kamisado");
         primaryStage.show();

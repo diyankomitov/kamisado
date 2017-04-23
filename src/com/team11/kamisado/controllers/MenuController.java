@@ -1,9 +1,13 @@
 package com.team11.kamisado.controllers;
 
-import com.team11.kamisado.AI.AIPlayer;
 import com.team11.kamisado.main.KamisadoApp;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.network.Client;
+import com.team11.kamisado.util.AIMode;
+import com.team11.kamisado.util.GameMode;
+import com.team11.kamisado.util.NormalMode;
+import com.team11.kamisado.util.OnlineMode;
 import com.team11.kamisado.util.SaveManager;
 import com.team11.kamisado.views.GameView;
 import com.team11.kamisado.views.MenuView;
@@ -36,6 +40,7 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean AIGame;
     private boolean onlineGame;
     private int difficulty;
+    private GameMode gameMode;
     
     public MenuController(KamisadoApp application, MenuView menuView) {
         this.application = application;
@@ -196,7 +201,7 @@ public class MenuController implements EventHandler<InputEvent> {
     
     private void onResume() {
         if(gameInProgress) {
-            gameController.setActiveController();
+            gameController.play();
         }
         else {
             Board board = (Board) SaveManager.loadFromFile().get(0);
@@ -206,12 +211,12 @@ public class MenuController implements EventHandler<InputEvent> {
             GameView gameView = new GameView(root);
             
             if(isSpeed) {
-                gameController = new SpeedGameController(this, gameView, board, (Integer)SaveManager.loadFromFile().get(2));
+                gameController = new SpeedGameController(this, gameView, board, gameMode, (Integer)SaveManager.loadFromFile().get(2));
             }
             else {
-                gameController = new GameController(this, gameView, board);
+                gameController = new GameController(this, gameView, board, gameMode);
             }
-            gameController.setActiveController();
+            gameController.play();
             gameInProgress = true;
             gameController.setStack(stack);
         }
@@ -224,8 +229,8 @@ public class MenuController implements EventHandler<InputEvent> {
         }
         GameView gameView = new GameView(root);
         gameController = null;
-        gameController = new GameController(this, gameView, board);
-        gameController.setActiveController();
+        gameController = new GameController(this, gameView, board, gameMode);
+        gameController.play();
         gameInProgress = true;
         gameController.setStack(boardStack);
         gameView.setMessage(false, "You undid a move.\nYou can now move again");
@@ -249,48 +254,65 @@ public class MenuController implements EventHandler<InputEvent> {
     private void onPlayButton() {
         Player playerOne = null;
         Player playerTwo = null;
+        boolean isBlack = false;
         
+        isSpeed = view.getSpeedRadio().isSelected();
         
-        
-        if(AIGame) {
-            if(singlePlayerMenuView.getEasyRadio().isSelected()) {
-                difficulty = 0;
+        if(onlineGame) {
+    
+            boolean isHost = menuView.getHostButton().isSelected();
+            isBlack = menuView.getBlackRadio().isSelected();
+    
+    
+            Client.connectToServer(menuView.getSinglePlayerName().getText(), isHost, isBlack, isSpeed);
+            isBlack = Client.getBlack();
+            gameMode = new GameMode(new OnlineMode(isBlack));
+            System.out.println("continuing");
+            if(isBlack) {
+                playerOne = new Player(menuView.getSinglePlayerName().getText(), "B");
+                playerTwo = new Player(Client.getOtherPlayerName(), "W");
+                gameMode.setPlayer(playerTwo);
             }
-            else if(singlePlayerMenuView.getHardRadio().isSelected()) {
-                difficulty = 1;
+            else {
+                playerOne = new Player(Client.getOtherPlayerName(), "B");
+                playerTwo = new Player(menuView.getSinglePlayerName().getText(), "W");
+                gameMode.setPlayer(playerOne);
             }
+            System.out.println("continuing2" +
+                    "");
+        }
+        else if(AIGame) {
+            difficulty = singlePlayerMenuView.getEasyRadio().isSelected() ? 0 : 1;
+            gameMode = new GameMode(new AIMode(difficulty));
             
             if(singlePlayerMenuView.getBlackRadio().isSelected()) {
                 playerOne = new Player(singlePlayerMenuView.getSinglePlayerName().getText(), "B");
-                playerTwo = new AIPlayer("AI", "W", difficulty);
+                playerTwo = new Player("AI", "W");
+                gameMode.setPlayer(playerTwo);
             }
             else if(singlePlayerMenuView.getWhiteRadio().isSelected()) {
-                playerOne = new AIPlayer("AI", "B", difficulty);
+                playerOne = new Player("AI", "B");
                 playerTwo = new Player(singlePlayerMenuView.getSinglePlayerName().getText(), "W");
+                gameMode.setPlayer(playerOne);
             }
         }
         else {
             playerOne = new Player(menuView.getPlayerOneName().getText(), "B");
             playerTwo = new Player(menuView.getPlayerTwoName().getText(), "W");
-        }
-    
-        if(view.getNormalRadio().isSelected()) {
-            isSpeed = false;
-        }
-        else if(view.getSpeedRadio().isSelected()) {
-            isSpeed = true;
+            gameMode = new GameMode(new NormalMode());
         }
         
         Board board = new Board(playerOne, playerTwo);
         GameView gameView = new GameView(root);
         
         if(isSpeed) {
-            gameController = new SpeedGameController(this, gameView, board, 5);
+            gameController = new SpeedGameController(this, gameView, board, gameMode, 5);
         }
         else {
-            gameController = new GameController(this, gameView, board);
+            gameController = new GameController(this, gameView, board, gameMode);
         }
-        gameController.setActiveController();
+        
+        gameController.play();
         gameInProgress = true;
     }
     
@@ -326,8 +348,7 @@ public class MenuController implements EventHandler<InputEvent> {
         if(gameInProgress) {
             
             Board board = gameController.getBoard();
-            int time = gameController instanceof SpeedGameController ?
-                    ((SpeedGameController) gameController).getCurrentTime() : 0;
+            int time = isSpeed ? ((SpeedGameController) gameController).getCurrentTime() : 0;
             
             SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack());
         }

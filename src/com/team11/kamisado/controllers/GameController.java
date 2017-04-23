@@ -1,10 +1,10 @@
 package com.team11.kamisado.controllers;
 
-import com.team11.kamisado.AI.AIPlayer;
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
 import com.team11.kamisado.models.Towers;
 import com.team11.kamisado.util.Coordinates;
+import com.team11.kamisado.util.GameMode;
 import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.views.GameView;
 import javafx.scene.effect.GaussianBlur;
@@ -17,6 +17,7 @@ import static com.team11.kamisado.models.Board.BOARD_LENGTH;
 public class GameController {
     
     private static final int BLUR_RADIUS = 63;
+    private final GameMode gameMode;
     
     private MenuController menuController;
     private GameView view;
@@ -24,16 +25,17 @@ public class GameController {
     private Board board;
     private int x;
     private int y;
-    private boolean AIOnTurn;
     private Stack<Board> boardStack;
+    private boolean online;
     
-    public GameController(MenuController menuController, GameView gameView, Board board) {
+    public GameController(MenuController menuController, GameView gameView, Board board, GameMode gameMode) {
+        this.gameMode = gameMode;
         this.menuController = menuController;
         this.board = board;
         
         boardStack = new Stack<>();
         
-        AIOnTurn = board.getCurrentPlayer() instanceof AIPlayer;
+        online = false;
         
         this.view = gameView;
         view.initGameView();
@@ -54,26 +56,23 @@ public class GameController {
         }
     }
     
-    public void setActiveController() {
+    public void play() {
         view.drawGameView();
         view.setEffect(null);
         view.requestFocus();
         this.handleKeyPressed();
-        if(AIOnTurn) {
-            onEnter();
-        }
+        gameMode.executeMove(this);
     }
     
     private void saveBoard() {
         boardStack.add(new Board(board));
     }
-    
 
     private void undo() {
         try {
-            if(board.getOtherPlayer() instanceof AIPlayer) {
-                boardStack.pop();
-            }
+//            if(board.getOtherPlayer() instanceof AIPlayer) { TODO: add back
+//                boardStack.pop();
+//            }
             board = boardStack.pop();
             menuController.undo(board, boardStack);
            
@@ -103,17 +102,13 @@ public class GameController {
                     break;
                 }
                 case ENTER:
+                    board.getCurrentPlayer().setCoordinates(x,y);
                     this.onEnter();
+                    gameMode.executeMove(this);
                     break;
                 case Z:
                     if(event.isControlDown()) {
                         undo();
-                    }
-                    break;
-                case A:
-                    if(event.isControlDown() && event.isShiftDown()) {      //TODO: remove AI test
-                        AIPlayer player = new AIPlayer("Blah", "Blah", 0);
-                        Coordinates aiToMove = player.getCoordinates(this);
                     }
                     break;
                 default:
@@ -135,25 +130,29 @@ public class GameController {
         view.setEffect(new GaussianBlur(BLUR_RADIUS));
     }
     
+    public Coordinates getCoordinates() {
+        return new Coordinates(x,y);
+    }
+    
     public void setCoordinates(Coordinates coordinates) {
         x = coordinates.getX();
         y = coordinates.getY();
     }
     
     public void onEnter() {
-        saveBoard();
-        if(AIOnTurn) {
-            AIPlayer aiPlayer = (AIPlayer) board.getCurrentPlayer();
-            Coordinates toMove = aiPlayer.getCoordinates(this);
-            x = toMove.getX();
-            y = toMove.getY();
-            AIOnTurn = false;
+        if(!online) {
+            saveBoard();
         }
+    
+        x = board.getCurrentPlayer().getCoordinates().getX();
+        y = board.getCurrentPlayer().getCoordinates().getY();
         
+        System.out.println("x: " + x + "y: " + y);
+    
         if(board.isFirstMove()) {
             if(y == 0) {
                 board.setCurrentSquare(x, y);
-                view.setCurrent(x,y);
+                view.setCurrent(x, y);
                 board.setCurrentCoordinates();
                 board.setValidCoordinates();
                 board.setFirstMoveToFalse();
@@ -166,18 +165,18 @@ public class GameController {
         else {
             if(board.areValidCoordinates(x, y)) {
                 board.move(x, y);
+                System.out.println("boardx: " + board.getMoveCoordinates().getX() + "boardy: " + board.getMoveCoordinates().getY());
                 view.getBoardPane().update(board.getOldCoordinates(), board.getMoveCoordinates());
             }
-            else if(board.getTower(x,y) == Towers.EMPTY){
+            else if(board.getTower(x, y) == Towers.EMPTY) {
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
                 return;
             }
             else {
-                view.setMessage(true, "You can't move a tower on top of another tower.\nPlease " +
-                        "select another square");
+                view.setMessage(true, "You can't move a tower on top of another tower.\nPlease " + "select another square");
                 return;
             }
-            
+    
             if(board.isWin()) {
                 this.winGame(board.getCurrentPlayer());
             }
@@ -185,21 +184,18 @@ public class GameController {
                 this.winGame(board.getOtherPlayer());
             }
             else if(board.isLock()) {
+                System.out.println("lock happened");
                 x = board.getCurrentCoordinates().getX();
                 y = board.getCurrentCoordinates().getY();
                 view.setMessage(true, "'" + board.getCurrentPlayer().getName() + "' it is your turn again since your opponent had no valid moves.\nPlease select a square to move to.");
+                gameMode.executeMove(this);
             }
             else {
                 x = board.getCurrentCoordinates().getX();
                 y = board.getCurrentCoordinates().getY();
                 view.setMessage(false, "'" + board.getCurrentPlayer().getName() + "' you are now on turn\nplease select a square to move to");
-                view.setCurrent(x,y);
+                view.setCurrent(x, y);
             }
-        }
-        
-        if(board.getCurrentPlayer() instanceof AIPlayer) {
-            AIOnTurn = true;
-            onEnter();
         }
     }
     
