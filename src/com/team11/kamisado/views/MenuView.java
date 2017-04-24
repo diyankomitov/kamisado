@@ -40,7 +40,6 @@ public class MenuView extends MenuViewBase {
     private Button localButton;
     private CheckBox hostButton;
     private Button continueMatchButton;
-    private RadioButton oneRadio;
     private RadioButton threeRadio;
     private RadioButton sevenRadio;
     private RadioButton fifteenRadio;
@@ -104,7 +103,7 @@ public class MenuView extends MenuViewBase {
     public void drawEndScreen(String winner, boolean matchOver) {
         Label label = new Label(winner + " wins!");
         label.setId("winMessage");
-    
+        
         setTransparent(true);
         root.getChildren().add(this);
         this.getChildren().clear();
@@ -114,7 +113,7 @@ public class MenuView extends MenuViewBase {
         }
         else {
             this.getChildren().addAll(getMenuGameTitle(), label, continueMatchButton, returnToMainMenuButton);
-    
+            
             continueMatchButton.requestFocus();
         }
     }
@@ -123,7 +122,7 @@ public class MenuView extends MenuViewBase {
         returnToMainMenuButton = new Button("Return to Main Menu");
         returnToMainMenuButton.getStyleClass().add("menuButton");
         handledNodes.add(returnToMainMenuButton);
-    
+        
         continueMatchButton = new Button("Continue Match");
         continueMatchButton.getStyleClass().add("menuButton");
         handledNodes.add(continueMatchButton);
@@ -207,11 +206,11 @@ public class MenuView extends MenuViewBase {
         
         namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
         namesWrapper.setId("namesWrapper");
-    
+        
         Label pointsRadioLabel = new Label("Select the max score");
         pointsRadioLabel.getStyleClass().add("nameLabel");
         ToggleGroup pointsToggleGroup = new ToggleGroup();
-        oneRadio = new RadioButton("1");
+        RadioButton oneRadio = new RadioButton("1");
         oneRadio.getStyleClass().add("radioButton");
         oneRadio.setToggleGroup(pointsToggleGroup);
         oneRadio.setSelected(true);
@@ -236,10 +235,6 @@ public class MenuView extends MenuViewBase {
         
     }
     
-    public RadioButton getOneRadio() {
-        return oneRadio;
-    }
-    
     public RadioButton getThreeRadio() {
         return threeRadio;
     }
@@ -252,10 +247,6 @@ public class MenuView extends MenuViewBase {
         return fifteenRadio;
     }
     
-    public VBox getPointsRadioWrapper() {
-        return pointsRadioWrapper;
-    }
-    
     public CheckBox getHostButton() {
         return hostButton;
     }
@@ -266,14 +257,6 @@ public class MenuView extends MenuViewBase {
     
     public Button getNewGameButton() {
         return newGameButton;
-    }
-    
-    public Button getLeaderboardButton() {
-        return leaderboardButton;
-    }
-    
-    public Button getSettingsButton() {
-        return settingsButton;
     }
     
     public Button getExitButton() {

@@ -49,7 +49,7 @@ public class SaveManager {
             FileOutputStream fileOutputStream = new FileOutputStream(SAVE_FILE);
             ObjectOutputStream outputStream = new ObjectOutputStream(fileOutputStream);
             
-           outputStream.writeObject(list);
+            outputStream.writeObject(list);
             
             outputStream.close();
             fileOutputStream.close();

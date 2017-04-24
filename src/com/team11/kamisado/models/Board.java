@@ -102,7 +102,6 @@ public class Board implements Serializable {
         this.matchWon = false;
         this.maxPoints = board.maxPoints;
         
-        
         this.validCoordinates = new ArrayList<>();
         List<Coordinates> tempCoordinates = board.getValidCoordinates();
         for(Coordinates tempCoordinate : tempCoordinates) {
@@ -111,7 +110,6 @@ public class Board implements Serializable {
     }
     
     public void randomizeBoard() {
-        Arrays.asList(squareArray);
         Collections.shuffle(Arrays.asList(squareArray));
         
         for(int i = 0; i <8; i++) {

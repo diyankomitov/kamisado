@@ -8,9 +8,6 @@ import com.team11.kamisado.models.Player;
 
 import java.util.Random;
 
-/**
- * Created by Diyan on 22/04/2017.
- */
 public class AIMode implements Mode {
     private final int difficulty;
     

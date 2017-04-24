@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Client {
     private static final String SERVER_IP = "52.214.254.147";
@@ -17,7 +18,7 @@ public class Client {
     private static boolean black;
     private static String otherPlayerName;
     
-    public static void connectToServer(String name, boolean isHost, boolean isBlack, boolean isSpeed) {
+    public static boolean connectToServer(String name, boolean isHost, boolean isBlack, boolean isSpeed) {
         try {
             System.out.println("Trying to connect");
             socket = new Socket(SERVER_IP, SERVER_PORT);
@@ -52,13 +53,15 @@ public class Client {
         }
         
         System.out.println("waiting for opponent...");
+    
         try {
+            socket.setSoTimeout(10000);
             inputStream = new ObjectInputStream(socket.getInputStream());
             otherPlayerName = (String) inputStream.readObject();
             System.out.println("Opponent is: " + otherPlayerName);
         }
         catch(IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            return false;
         }
     
         if(!isHost) {
@@ -70,6 +73,8 @@ public class Client {
                 e.printStackTrace();
             }
         }
+        
+        return true;
     }
     
     public static String getOtherPlayerName() {

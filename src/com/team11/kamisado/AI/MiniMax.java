@@ -18,17 +18,17 @@ public class MiniMax {
         minimizer = board.getOtherPlayer();
         
         AIState currentAIState = new AIState(board);
-    
+        
         currentAIState.setChildren(generateNextStates(currentAIState));
         generateTree(currentAIState, 0);
         
         optimalAIState = miniMax(currentAIState, maximizer);
-    
+        
     }
     
     private void generateTree(AIState parent, int depth) {
         parent.setChildren(generateNextStates(parent));
-    
+        
         if(depth != 3) {
             for(AIState child : parent.getChildren()) {
                 if(!child.getBoard().isWin() && !child.getBoard().isLock()) {
@@ -43,9 +43,9 @@ public class MiniMax {
     }
     
     private AIState miniMax(AIState AIState, Player player) {
-    
+        
         Player currentPlayer = player == maximizer ? minimizer : maximizer;
-    
+        
         LinkedList<AIState> children = AIState.getChildren();
         if(children != null) {
             for(AIState child : children) {
@@ -55,14 +55,14 @@ public class MiniMax {
                 return bestMove(AIState.getChildren(), currentPlayer);
             }
         }
-    
+        
         return AIState;
     }
     
     private AIState bestMove(LinkedList<AIState> statelist, Player player) {
         if(player == maximizer) {
             AIState max = statelist.get(0);
-    
+            
             for(AIState AIState : statelist) {
                 max = AIState.getScore() > max.getScore() ? AIState : max;
             }
@@ -71,7 +71,7 @@ public class MiniMax {
         }
         else if(player == minimizer) {
             AIState min = statelist.get(0);
-    
+            
             for(AIState AIState : statelist) {
                 min = AIState.getScore() > min.getScore() ? AIState : min;
             }
@@ -115,7 +115,7 @@ public class MiniMax {
     private LinkedList<AIState> generateNextStates(AIState AIState) {
         
         LinkedList<AIState> AIStateList = new LinkedList<>();
-    
+        
         List<Coordinates> validCoordinates = AIState.getBoard().getValidCoordinates();
         for(Coordinates coordinates : validCoordinates) {
             AIState newAIState = new AIState(AIState);
