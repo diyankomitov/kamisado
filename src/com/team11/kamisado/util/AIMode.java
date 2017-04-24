@@ -49,4 +49,9 @@ public class AIMode implements Mode {
     
         controller.onEnter();
     }
+    
+    @Override
+    public String getName() {
+        return this.getClass().toString();
+    }
 }

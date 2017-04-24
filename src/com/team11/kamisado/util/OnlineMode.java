@@ -37,7 +37,6 @@ public class OnlineMode implements Mode {
                 player.setCoordinates(x, y);
                 System.out.println("from mode: " + x + " " + y);
                 board.setCurrentSquare(x, y);
-                board.setCurrentCoordinates();
                 board.setValidCoordinates();
                 board.setFirstMoveToFalse();
             }
@@ -51,5 +50,10 @@ public class OnlineMode implements Mode {
             Platform.runLater(controller::onEnter);
             System.out.print("thread ended");
         }).start();
+    }
+    
+    @Override
+    public String getName() {
+        return this.getClass().toString();
     }
 }

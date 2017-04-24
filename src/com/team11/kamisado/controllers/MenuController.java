@@ -20,9 +20,10 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 
+import java.awt.*;
 import java.util.Stack;
 
-import static javafx.scene.input.KeyCode.ENTER;
+import static javafx.scene.input.KeyCode.*;
 
 public class MenuController implements EventHandler<InputEvent> {
     
@@ -39,7 +40,6 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean gameInProgress;
     private boolean AIGame;
     private boolean onlineGame;
-    private int difficulty;
     private GameMode gameMode;
     
     public MenuController(KamisadoApp application, MenuView menuView) {
@@ -66,7 +66,7 @@ public class MenuController implements EventHandler<InputEvent> {
     
     @Override
     public void handle(InputEvent event) {
-        final Object source = event.getSource();
+        Object source = event.getSource();
         
         boolean pressed = false;
         boolean clicked = false;
@@ -122,46 +122,14 @@ public class MenuController implements EventHandler<InputEvent> {
                 }
                 else {
                     view.getSinglePlayerError().setText("");
-                    if(view == singlePlayerMenuView) {
-                        singlePlayerMenuView.getEasyRadio().requestFocus();
-                    }
-                    else {
-                        menuView.getHostButton().requestFocus();
-                    }
+                    focusNext();
                 }
-            }
-            else if(source == view.getBlackRadio()) {
-                if(view == singlePlayerMenuView) {
-                    singlePlayerMenuView.getEasyRadio().requestFocus();
-                }
-                else {
-                    view.getBlackRadio().requestFocus();
-                }
-            }
-            else if(source == view.getWhiteRadio()) {
-                if(view == singlePlayerMenuView) {
-                    singlePlayerMenuView.getEasyRadio().requestFocus();
-                }
-                else {
-                    view.getBlackRadio().requestFocus();
-                }
-            }
-            else if(source == singlePlayerMenuView.getEasyRadio()) {
-                singlePlayerMenuView.getNormalRadio().requestFocus();
-            }
-            else if(source == singlePlayerMenuView.getHardRadio()) {
-                singlePlayerMenuView.getNormalRadio().requestFocus();
-            }
-            else if(source == view.getNormalRadio()) {
-                view.getPlayButton().requestFocus();
-            }
-            else if(source == view.getSpeedRadio()) {
-                view.getPlayButton().requestFocus();
             }
             else if(source == view.getPlayButton()) {
                 this.onPlayButton();
             }
             else if(source == view.getBackButton()) {
+                onlineGame = false;
                 if(view == singlePlayerMenuView) {
                     menuView.drawSelectModeScreen();
                     root.getChildren().remove(singlePlayerMenuView);
@@ -196,6 +164,15 @@ public class MenuController implements EventHandler<InputEvent> {
                 root.getChildren().add(menuView);
                 menuView.drawMainMenu();
             }
+            else if(source == menuView.getContinueMatchButton()) {
+                gameController.continueMatch();
+            }
+            else if(source == view.getRandomButton()) {
+                view.getRandomButton().setSelected(!view.getRandomButton().isSelected());
+            }
+            else {
+                focusNext();
+            }
         }
     }
     
@@ -223,10 +200,10 @@ public class MenuController implements EventHandler<InputEvent> {
         isPaused = false;
     }
     
-    public void win(String winner) {
+    public void win(String winner, boolean matchOver) {
         SaveManager.deleteFile();
         gameInProgress = false;
-        menuView.drawEndScreen(winner);
+        menuView.drawEndScreen(winner, matchOver);
     }
     
     public void pause() {
@@ -241,7 +218,7 @@ public class MenuController implements EventHandler<InputEvent> {
     private void onPlayButton() {
         Player playerOne = null;
         Player playerTwo = null;
-        boolean isBlack = false;
+        boolean isBlack;
         
         isSpeed = view.getSpeedRadio().isSelected();
         
@@ -269,7 +246,7 @@ public class MenuController implements EventHandler<InputEvent> {
                     "");
         }
         else if(AIGame) {
-            difficulty = singlePlayerMenuView.getEasyRadio().isSelected() ? 0 : 1;
+            int difficulty = singlePlayerMenuView.getEasyRadio().isSelected() ? 0 : 1;
             gameMode = new GameMode(new AIMode(difficulty));
             
             if(singlePlayerMenuView.getBlackRadio().isSelected()) {
@@ -290,6 +267,29 @@ public class MenuController implements EventHandler<InputEvent> {
         }
         
         Board board = new Board(playerOne, playerTwo);
+        
+        int points;
+        
+       
+        if(menuView.getThreeRadio().isSelected()) {
+            points = 3;
+        }
+        else if(menuView.getSevenRadio().isSelected()) {
+            points = 7;
+        }
+        else if(menuView.getFifteenRadio().isSelected()) {
+            points = 15;
+        }
+        else {
+            points = 1;
+        }
+        
+        board.setMaxPoints(points);
+        
+        if(view.getRandomButton().isSelected()) {
+            board.randomizeBoard();
+        }
+        
         GameView gameView = new GameView(root);
         
         if(isSpeed) {
@@ -312,7 +312,7 @@ public class MenuController implements EventHandler<InputEvent> {
             menuView.drawNameErrorMessage(menuView.getPlayerOneError(), "Please enter a different name than Player Two"); //TODO: don't allow play if names entered wrong
         }
         else {
-            menuView.getPlayerTwoName().requestFocus();
+            focusNext();
             menuView.drawNameErrorMessage(menuView.getPlayerOneError(), "");
         }
     }
@@ -326,7 +326,7 @@ public class MenuController implements EventHandler<InputEvent> {
             menuView.drawNameErrorMessage(menuView.getPlayerTwoError(), "Please enter a different name than Player One");
         }
         else {
-            view.getNormalRadio().requestFocus();
+            focusNext();
             menuView.drawNameErrorMessage(menuView.getPlayerTwoError(), "");
         }
     }
@@ -340,5 +340,29 @@ public class MenuController implements EventHandler<InputEvent> {
             SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack());
         }
         application.getStage().close();
+    }
+    
+    private void focusNext() {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(java.awt.event.KeyEvent.VK_TAB);
+            robot.keyRelease(java.awt.event.KeyEvent.VK_TAB);
+        }
+        catch(AWTException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void focusPrevious() {
+        try {
+            Robot robot = new Robot();
+            robot.keyPress(java.awt.event.KeyEvent.VK_SHIFT);
+            robot.keyPress(java.awt.event.KeyEvent.VK_TAB);
+            robot.keyRelease(java.awt.event.KeyEvent.VK_TAB);
+            robot.keyRelease(java.awt.event.KeyEvent.VK_SHIFT);
+        }
+        catch(AWTException e) {
+            e.printStackTrace();
+        }
     }
 }

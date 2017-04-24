@@ -30,7 +30,7 @@ public class SinglePlayerMenuView extends MenuViewBase {
     
     public void drawSinglePlayerScreen() {
         this.getChildren().clear();
-        this.getChildren().addAll(getMenuGameTitle(), getSinglePlayerError(), getColorRadioWrapper(), difficultyRadioWrapper, getModeRadioWrapper(), getButtonsWrapper());
+        this.getChildren().addAll(getMenuGameTitle(), getSinglePlayerNameWrapper(), getColorRadioWrapper(), difficultyRadioWrapper, getModeRadioWrapper(), getRandomButton(), getButtonsWrapper());
     }
     
     private void initSinglePlayerScreen() {

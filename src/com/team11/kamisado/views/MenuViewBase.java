@@ -3,6 +3,7 @@ package com.team11.kamisado.views;
 import javafx.css.PseudoClass;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
@@ -22,6 +23,7 @@ public class MenuViewBase extends VBox{
     private final Button backButton;
     private final HBox buttonsWrapper;
     private final TextFlow menuGameTitle;
+    private final CheckBox randomButton;
     private RadioButton normalRadio;
     private RadioButton speedRadio;
     private VBox modeRadioWrapper;
@@ -94,6 +96,14 @@ public class MenuViewBase extends VBox{
         colorRadioWrapper = new VBox(colorRadioLabel, radioBox);
         colorRadioWrapper.getStyleClass().add("radioWrapper");
         colorRadioWrapper.setId("colorRadioWrapper");
+    
+        randomButton = new CheckBox("Randomize the Board");
+        randomButton.getStyleClass().add("checkButton");
+        handledNodes.add(randomButton);
+    }
+    
+    public CheckBox getRandomButton() {
+        return randomButton;
     }
     
     public VBox getSinglePlayerNameWrapper() {

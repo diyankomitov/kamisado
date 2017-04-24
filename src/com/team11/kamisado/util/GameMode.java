@@ -23,4 +23,8 @@ public class GameMode {
     public void setPlayer(Player player) {
         this.player = player;
     }
+    
+    public String getMode() {
+        return mode.getName();
+    }
 }

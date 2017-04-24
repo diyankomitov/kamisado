@@ -2,6 +2,7 @@ package com.team11.kamisado.util;
 
 import com.team11.kamisado.controllers.SpeedGameController;
 import com.team11.kamisado.models.Board;
+import com.team11.kamisado.models.Player;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -19,6 +20,7 @@ import java.util.Collections;
 public class SaveManager {
     
     private static final String SAVE_FILE = "saves/resume.ser";
+    private static final String LEADERBOARD = "saves/leaderboard.ser";
     
     public static void deleteFile() {
         new File(SAVE_FILE).delete();

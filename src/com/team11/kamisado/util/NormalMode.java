@@ -11,4 +11,9 @@ public class NormalMode implements Mode {
     public void move(GameController controller) {
         
     }
+    
+    @Override
+    public String getName() {
+        return this.getClass().toString();
+    }
 }

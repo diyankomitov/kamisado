@@ -5,7 +5,9 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -37,9 +39,12 @@ public class MenuView extends MenuViewBase {
     private Button onlineButton;
     private Button localButton;
     private CheckBox hostButton;
-    private TextField multiplayerName;
-    private Label multiplayerError;
-    private VBox multiplayerNameWrapper;
+    private Button continueMatchButton;
+    private RadioButton oneRadio;
+    private RadioButton threeRadio;
+    private RadioButton sevenRadio;
+    private RadioButton fifteenRadio;
+    private VBox pointsRadioWrapper;
     
     public MenuView(StackPane root) {
         super();
@@ -89,29 +94,39 @@ public class MenuView extends MenuViewBase {
     
     public void drawEnterNameScreen() {
         this.getChildren().clear();
-        this.getChildren().addAll(getMenuGameTitle(), namesWrapper, getModeRadioWrapper(), getButtonsWrapper());
+        this.getChildren().addAll(getMenuGameTitle(), namesWrapper, getModeRadioWrapper(), getRandomButton(), pointsRadioWrapper, getButtonsWrapper());
     }
     
     public void drawNameErrorMessage(Label player, String errorMessage) {
         player.setText(errorMessage);
     }
     
-    public void drawEndScreen(String winner) {
+    public void drawEndScreen(String winner, boolean matchOver) {
         Label label = new Label(winner + " wins!");
         label.setId("winMessage");
     
         setTransparent(true);
         root.getChildren().add(this);
         this.getChildren().clear();
-        this.getChildren().addAll(getMenuGameTitle(), label, returnToMainMenuButton);
+        if(matchOver) {
+            this.getChildren().addAll(getMenuGameTitle(), label, returnToMainMenuButton);
+            returnToMainMenuButton.requestFocus();
+        }
+        else {
+            this.getChildren().addAll(getMenuGameTitle(), label, continueMatchButton, returnToMainMenuButton);
     
-        returnToMainMenuButton.requestFocus();
+            continueMatchButton.requestFocus();
+        }
     }
     
     private void initEndScreen() {
         returnToMainMenuButton = new Button("Return to Main Menu");
         returnToMainMenuButton.getStyleClass().add("menuButton");
         handledNodes.add(returnToMainMenuButton);
+    
+        continueMatchButton = new Button("Continue Match");
+        continueMatchButton.getStyleClass().add("menuButton");
+        handledNodes.add(continueMatchButton);
     }
     
     private void initMenuElements() {
@@ -192,6 +207,53 @@ public class MenuView extends MenuViewBase {
         
         namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
         namesWrapper.setId("namesWrapper");
+    
+        Label pointsRadioLabel = new Label("Select the max score");
+        pointsRadioLabel.getStyleClass().add("nameLabel");
+        ToggleGroup pointsToggleGroup = new ToggleGroup();
+        oneRadio = new RadioButton("1");
+        oneRadio.getStyleClass().add("radioButton");
+        oneRadio.setToggleGroup(pointsToggleGroup);
+        oneRadio.setSelected(true);
+        handledNodes.add(oneRadio);
+        threeRadio = new RadioButton("3");
+        threeRadio.getStyleClass().add("radioButton");
+        threeRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(threeRadio);
+        sevenRadio = new RadioButton("7");
+        sevenRadio.getStyleClass().add("radioButton");
+        sevenRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(sevenRadio);
+        fifteenRadio = new RadioButton("15");
+        fifteenRadio.getStyleClass().add("radioButton");
+        fifteenRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(fifteenRadio);
+        HBox pointsRadioBox = new HBox(oneRadio, threeRadio, sevenRadio, fifteenRadio);
+        pointsRadioBox.getStyleClass().add("radioBox");
+        pointsRadioWrapper = new VBox(pointsRadioLabel, pointsRadioBox);
+        pointsRadioWrapper.getStyleClass().add("radioWrapper");
+        pointsRadioWrapper.setId("pointsRadioWrapper");
+        
+    }
+    
+    public RadioButton getOneRadio() {
+        return oneRadio;
+    }
+    
+    public RadioButton getThreeRadio() {
+        return threeRadio;
+    }
+    
+    public RadioButton getSevenRadio() {
+        return sevenRadio;
+    }
+    
+    public RadioButton getFifteenRadio() {
+        return fifteenRadio;
+    }
+    
+    public VBox getPointsRadioWrapper() {
+        return pointsRadioWrapper;
     }
     
     public CheckBox getHostButton() {
@@ -256,5 +318,9 @@ public class MenuView extends MenuViewBase {
     
     public Button getReturnToMainMenuButton() {
         return returnToMainMenuButton;
+    }
+    
+    public Button getContinueMatchButton() {
+        return continueMatchButton;
     }
 }

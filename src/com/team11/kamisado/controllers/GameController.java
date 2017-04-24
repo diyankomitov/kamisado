@@ -7,7 +7,10 @@ import com.team11.kamisado.util.GameMode;
 import com.team11.kamisado.views.BoardPane;
 import com.team11.kamisado.views.Colors;
 import com.team11.kamisado.views.GameView;
+import javafx.application.Application;
+import javafx.event.Event;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.input.KeyCode;
 
 import java.util.EmptyStackException;
 import java.util.Stack;
@@ -26,11 +29,13 @@ public class GameController {
     private int x;
     private int y;
     private Stack<Board> boardStack;
+    private int round;
     
     public GameController(MenuController menuController, GameView gameView, Board board, GameMode gameMode) {
         this.gameMode = gameMode;
         this.menuController = menuController;
         this.board = board;
+        this.round = 1;
         
         boardStack = new Stack<>();
         
@@ -40,7 +45,6 @@ public class GameController {
         view.setMessage(false, "Welcome to Kamisado!\n'" + board.getCurrentPlayer().getName() + "' please select a black tower to move");
         
         this.boardPane = view.getBoardPane();
-        boardPane = view.getBoardPane();
         boardPane.drawSquares(board.getSquareArray());
         boardPane.drawTowers(board.getTowerArray());
         boardPane.initSelector();
@@ -61,14 +65,16 @@ public class GameController {
     }
     
     private void saveBoard() {
-        boardStack.add(new Board(board));
+        if(!gameMode.getMode().equals("OnlineMode")) {
+            boardStack.add(new Board(board));
+        }
     }
 
     private void undo() {
         try {
-//            if(board.getOtherPlayer() instanceof AIPlayer) { TODO: add back
-//                boardStack.pop();
-//            }
+            if(gameMode.getMode().equals("AIMode")) {
+             boardStack.pop();
+            }
             board = boardStack.pop();
             boardPane.drawTowers(board.getTowerArray());
             x = board.getCurrentCoordinates().getX();
@@ -81,6 +87,9 @@ public class GameController {
         }
         catch(EmptyStackException e) {
             view.setMessage(true, "You can't undo anymore, you've reached the start of the game!");
+            if(gameMode.getMode().equals("OnlineMode")) {
+                view.setMessage(true, "You can't undo if you are playing online");
+            }
         }
     }
     
@@ -133,29 +142,28 @@ public class GameController {
     }
     
     public void onEnter() {
-        
         x = board.getCurrentPlayer().getCoordinates().getX();
         y = board.getCurrentPlayer().getCoordinates().getY();
         
         if(board.isFirstMove()) {
-            if(y == 0) {
+            if(board.getCurrentPlayer().getPlayerColor().equals("B") && y == 0 || board.getCurrentPlayer().getPlayerColor().equals("W") && y == BOARD_LENGTH-1) {
                 saveBoard();
                 board.setCurrentSquare(x, y);
-                board.setCurrentCoordinates();
                 board.setValidCoordinates();
                 board.setFirstMoveToFalse();
                 boardPane.setCurrent(x, y);
                 view.setMessage(false, "Now please choose a square to move to");
             }
             else {
-                view.setMessage(true, "That is not a black tower '" + board.getCurrentPlayer().getName() + "'.\nPlease select a black tower to move");
+                String color = board.getCurrentPlayer().getPlayerColor().equals("B") ? "black" : "white";
+                view.setMessage(true, "That is not a " + color + " tower '" + board.getCurrentPlayer().getName() + "'.\nPlease select a " + color + " tower to move");
             }
         }
         else {
             if(board.areValidCoordinates(x, y)) {
                 saveBoard();
                 board.move(x, y);
-                boardPane.update(board.getOldCoordinates(), board.getMoveCoordinates());
+                boardPane.drawTowers(board.getTowerArray());
             }
             else if(board.getTower(x, y) == Towers.EMPTY) {
                 view.setMessage(true, "That is not a valid move.\nPlease select another square");
@@ -189,8 +197,9 @@ public class GameController {
     
     public void winGame(Player winner) {
         view.setEffect(new GaussianBlur(BLUR_RADIUS));
-        view.getBoardPane().stopFadeTransition();
-        menuController.win(winner.getName());
+        boardPane.stopFadeTransition();
+        
+        menuController.win(winner.getName(), board.isMatchWon());
     }
     
     public Board getBoard() {
@@ -203,5 +212,45 @@ public class GameController {
     
     public Stack<Board> getBoardStack() {
         return boardStack;
+    }
+    
+    public void continueMatch() {
+        view.drawGameView();
+        view.setEffect(null);
+        view.setOnKeyPressed(event -> {});
+        Player pl1 = board.getPlayerOne();
+        Player pl2 = board.getPlayerTwo();
+        view.setNames(pl1.getName() + " (" + pl1.getScore() + ")", pl2.getName() + " (" + pl2.getScore() + ")");
+        view.setMessage(false, board.getWinner().getName() + " please select a fill order for your home row!");
+        view.drawOrderButtons();
+        view.getLeftButton().requestFocus();
+        view.getLeftButton().setOnKeyPressed(event -> {
+            if(event.getCode() == KeyCode.ENTER) {
+                event.consume();
+                startNextRound(true);
+            }
+        });
+        view.getRightButton().setOnKeyPressed(event -> {
+            if(event.getCode() == KeyCode.ENTER) {
+                event.consume();
+                startNextRound(false);
+            }
+        });
+    }
+    
+    private void startNextRound(boolean left) {
+        view.drawSideBar();
+        board.continueMatch(left);
+        board = new Board(board);
+        round++;
+        String color = board.getCurrentPlayer().getPlayerColor().equals("B") ? "black" : "white";
+        view.setMessage(false, "Welcome to round " + round + " ! '" + board.getCurrentPlayer().getName() + "' please select a " + color + " tower to move");
+        boardPane.drawTowers(board.getTowerArray());
+        x = 0;
+        y = 0;
+        boardPane.moveSelector(x,y);
+        boardPane.setCurrent(x,y);
+        boardPane.getSquare(x,y).setStroke(Colors.TRUEBLACK.getValue());
+        this.play();
     }
 }

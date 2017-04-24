@@ -178,7 +178,7 @@ public class BoardPane extends Pane {
                             break;
                     }
                     
-                    TowerView towerView = new TowerView(squares[y][x], color, type);
+                    TowerView towerView = new TowerView(squares[y][x], color, type, tower.getSumoLevel());
                     towers[y][x] = towerView;
                     this.getChildren().add(towerView);
                 }

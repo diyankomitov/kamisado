@@ -1,8 +1,8 @@
 package com.team11.kamisado.views;
 
-import com.team11.kamisado.models.Board;
 import javafx.beans.property.IntegerProperty;
 import javafx.geometry.Insets;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -15,6 +15,8 @@ public class GameView extends BorderPane {
     private Label namesLabel;
     private VBox sidebar;
     private Label timer;
+    private Button rightButton;
+    private Button leftButton;
     
     public GameView(StackPane root) {
         this.root = root;
@@ -36,12 +38,28 @@ public class GameView extends BorderPane {
         timer = new Label("5");
         timer.setId("timer");
     
-        sidebar = new VBox(namesLabel, messageLabel);
+        sidebar = new VBox();
         sidebar.setId("sidebar");
+        drawSideBar();
         BorderPane.setMargin(sidebar, new Insets(BoardPane.BOARD_VIEW_MARGIN));
         
         this.setLeft(boardPane);
         this.setCenter(sidebar);
+    }
+    
+    public void drawOrderButtons() {
+        leftButton = new Button("Fill from the left");
+        leftButton.getStyleClass().add("menuButton");
+        rightButton = new Button("Fill from the right");
+        rightButton.getStyleClass().add("menuButton");
+        
+        sidebar.getChildren().clear();
+        sidebar.getChildren().addAll(namesLabel, messageLabel, leftButton, rightButton);
+    }
+    
+    public void drawSideBar() {
+        sidebar.getChildren().clear();
+        sidebar.getChildren().addAll(namesLabel, messageLabel);
     }
     
     public void drawGameView() {
@@ -70,5 +88,17 @@ public class GameView extends BorderPane {
     
     public BoardPane getBoardPane() {
         return boardPane;
+    }
+    
+    public Button getLeftButton() {
+        return leftButton;
+    }
+    
+    public Button getRightButton() {
+        return rightButton;
+    }
+    
+    public VBox getSidebar() {
+        return sidebar;
     }
 }
