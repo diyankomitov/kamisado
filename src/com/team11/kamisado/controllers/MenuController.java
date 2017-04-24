@@ -41,6 +41,7 @@ public class MenuController implements EventHandler<InputEvent> {
     private boolean AIGame;
     private boolean onlineGame;
     private GameMode gameMode;
+    private int difficulty;
     
     public MenuController(KamisadoApp application, MenuView menuView) {
         this.application = application;
@@ -184,8 +185,17 @@ public class MenuController implements EventHandler<InputEvent> {
             Board board = (Board) SaveManager.loadFromFile().get(0);
             isSpeed = (boolean) SaveManager.loadFromFile().get(1);
             Stack<Board> stack = (Stack<Board>) SaveManager.loadFromFile().get(3);
+            AIGame = (boolean) SaveManager.loadFromFile().get(4);
+            difficulty = (int) SaveManager.loadFromFile().get(5);
             
             GameView gameView = new GameView(root);
+            
+            if(AIGame) {
+                gameMode = new GameMode(new AIMode(difficulty));
+            }
+            else {
+                gameMode = new GameMode(new NormalMode());
+            }
             
             if(isSpeed) {
                 gameController = new SpeedGameController(this, gameView, board, gameMode, (Integer)SaveManager.loadFromFile().get(2));
@@ -246,7 +256,7 @@ public class MenuController implements EventHandler<InputEvent> {
                     "");
         }
         else if(AIGame) {
-            int difficulty = singlePlayerMenuView.getEasyRadio().isSelected() ? 0 : 1;
+            difficulty = singlePlayerMenuView.getEasyRadio().isSelected() ? 0 : 1;
             gameMode = new GameMode(new AIMode(difficulty));
             
             if(singlePlayerMenuView.getBlackRadio().isSelected()) {
@@ -337,7 +347,9 @@ public class MenuController implements EventHandler<InputEvent> {
             Board board = gameController.getBoard();
             int time = isSpeed ? ((SpeedGameController) gameController).getCurrentTime() : 0;
             
-            SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack());
+            if(!onlineGame) {
+                SaveManager.saveToFile(board, isSpeed, time, gameController.getBoardStack(), AIGame, difficulty);
+            }
         }
         application.getStage().close();
     }

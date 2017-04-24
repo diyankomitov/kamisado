@@ -1,9 +1,5 @@
 package com.team11.kamisado.util;
 
-import com.team11.kamisado.controllers.SpeedGameController;
-import com.team11.kamisado.models.Board;
-import com.team11.kamisado.models.Player;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
