@@ -1,78 +1,141 @@
 package com.team11.kamisado.views;
 
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
+import com.team11.kamisado.util.SaveManager;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.input.InputEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 
-import java.io.File;
+import java.util.List;
 
-public class MenuView extends VBox {
-    
-    private static final double INITIALFONTSIZE = 10;
-    
+public class MenuView extends MenuViewBase {
     private StackPane root;
-    private TextFlow menuGameTitle;
+    
+    private Button resumeButton;
     private Button newGameButton;
     private Button leaderboardButton;
     private Button settingsButton;
     private Button exitButton;
-    private Button resumeButton;
+    
     private Button versusPlayerButton;
     private Button versusAIButton;
     private Button cancelButton;
+    
     private HBox namesWrapper;
-    private TextField playerTwoName;
     private TextField playerOneName;
+    private TextField playerTwoName;
     private Label playerOneError;
     private Label playerTwoError;
-    private HBox buttonsWrapper;
-    private Button playButton;
-    private Button backButton;
     
-    private EventHandler<InputEvent> controller;
     private Button returnToMainMenuButton;
-    private Button normalGameButton;
-    private Button speedGameButton;
-    private RadioButton blackRadio;
-    private RadioButton whiteRadio;
-    private ToggleGroup toggleGroup;
-    private VBox playerOneNameBox;
-    private Label playerOneLabel;
-    private Button hardButton;
-    private Button easyButton;
     
-    public MenuView(StackPane root, EventHandler<InputEvent> controller) {
+    private List<Node> handledNodes;
+    private Button onlineButton;
+    private Button localButton;
+    private CheckBox hostButton;
+    private Button continueMatchButton;
+    private RadioButton threeRadio;
+    private RadioButton sevenRadio;
+    private RadioButton fifteenRadio;
+    private VBox pointsRadioWrapper;
+    
+    public MenuView(StackPane root) {
+        super();
         this.root = root;
-        this.controller = controller;
-        this.setId("menuView");
-        Font.loadFont(getClass().getResource("/fonts/Akashi.ttf").toString(), INITIALFONTSIZE);
+        
+        this.handledNodes = getHandledNodes();
         
         initMenuElements();
+        initPickModeScreen();
+        initMultplayerModeScreen();
+        initOnlineScreen();
+        initEnterNameScreen();
+        initEndScreen();
+        
+        root.getChildren().add(this);
         drawMainMenu();
+        this.setId("menuView");
+        this.getStyleClass().add("transparentMenu");
+    }
+    
+    public void drawMainMenu() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
+        
+        if(!SaveManager.fileExists()) {
+            resumeButton.setDisable(true);
+        }
+        else {
+            resumeButton.setDisable(false);
+        }
+    }
+    
+    public void drawSelectModeScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), versusPlayerButton, versusAIButton, cancelButton);
+    }
+    
+    public void drawMultiplayerModeScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), onlineButton, localButton, cancelButton);
+    }
+    
+    public void drawOnlineScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), getSinglePlayerNameWrapper(), hostButton, getColorRadioWrapper(), getModeRadioWrapper(), getButtonsWrapper());
+    }
+    
+    public void drawEnterNameScreen() {
+        this.getChildren().clear();
+        this.getChildren().addAll(getMenuGameTitle(), namesWrapper, getModeRadioWrapper(), getRandomButton(), pointsRadioWrapper, getButtonsWrapper());
+    }
+    
+    public void drawNameErrorMessage(Label player, String errorMessage) {
+        player.setText(errorMessage);
+    }
+    
+    public void drawEndScreen(String winner, boolean matchOver) {
+        Label label = new Label(winner + " wins!");
+        label.setId("winMessage");
+        
+        setTransparent(true);
+        root.getChildren().add(this);
+        this.getChildren().clear();
+        if(matchOver) {
+            this.getChildren().addAll(getMenuGameTitle(), label, returnToMainMenuButton);
+            returnToMainMenuButton.requestFocus();
+        }
+        else {
+            this.getChildren().addAll(getMenuGameTitle(), label, continueMatchButton, returnToMainMenuButton);
+            
+            continueMatchButton.requestFocus();
+        }
+    }
+    
+    private void initEndScreen() {
+        returnToMainMenuButton = new Button("Return to Main Menu");
+        returnToMainMenuButton.getStyleClass().add("menuButton");
+        handledNodes.add(returnToMainMenuButton);
+        
+        continueMatchButton = new Button("Continue Match");
+        continueMatchButton.getStyleClass().add("menuButton");
+        handledNodes.add(continueMatchButton);
     }
     
     private void initMenuElements() {
-        /* Title */
-        menuGameTitle = drawTitle();
-        menuGameTitle.setId("gameTitle");
-    
-        /* Main menu buttons */
+        resumeButton = new Button("Resume Game");
+        resumeButton.getStyleClass().add("menuButton");
+        handledNodes.add(resumeButton);
+        
         newGameButton = new Button("Play New Game");
         newGameButton.getStyleClass().add("menuButton");
-        newGameButton.setOnMouseClicked(controller);
-        newGameButton.setOnKeyPressed(controller);
+        handledNodes.add(newGameButton);
         
         leaderboardButton = new Button("View Leaderboard");
         leaderboardButton.getStyleClass().add("menuButton");
@@ -84,232 +147,132 @@ public class MenuView extends VBox {
         
         exitButton = new Button("Exit");
         exitButton.getStyleClass().add("menuButton");
-        exitButton.setOnMouseClicked(controller);
-        exitButton.setOnKeyPressed(controller);
+        handledNodes.add(exitButton);
+    }
     
-        /* Pick mode buttons */
+    private void initPickModeScreen() {
         versusPlayerButton = new Button("Versus Player");
         versusPlayerButton.getStyleClass().add("menuButton");
-        versusPlayerButton.setOnMouseClicked(controller);
-        versusPlayerButton.setOnKeyPressed(controller);
-        
-        normalGameButton = new Button("Normal Game");
-        normalGameButton.getStyleClass().add("menuButton");
-        normalGameButton.setOnMouseClicked(controller);
-        normalGameButton.setOnKeyPressed(controller);
-       
-        speedGameButton = new Button("Speed Game");
-        speedGameButton.getStyleClass().add("menuButton");
-        speedGameButton.setOnMouseClicked(controller);
-        speedGameButton.setOnKeyPressed(controller);
+        handledNodes.add(versusPlayerButton);
         
         versusAIButton = new Button("Versus AI");
         versusAIButton.getStyleClass().add("menuButton");
-        versusAIButton.setOnMouseClicked(controller);
-        versusAIButton.setOnKeyPressed(controller);
+        handledNodes.add(versusAIButton);
         
         cancelButton = new Button("Cancel");
         cancelButton.getStyleClass().add("menuButton");
-        cancelButton.setOnMouseClicked(controller);
-        cancelButton.setOnKeyPressed(controller);
+        handledNodes.add(cancelButton);
+    }
+    
+    private void initMultplayerModeScreen() {
+        onlineButton = new Button("Play Online");
+        onlineButton.getStyleClass().add("menuButton");
+        handledNodes.add(onlineButton);
         
-        /* Resume Game */
-        resumeButton = new Button("Resume Game");
-        resumeButton.getStyleClass().add("menuButton");
-        resumeButton.setOnMouseClicked(controller);
-        resumeButton.setOnKeyPressed(controller);
+        localButton = new Button("Play on this Computer");
+        localButton.getStyleClass().add("menuButton");
+        handledNodes.add(localButton);
+    }
+    
+    private void initOnlineScreen() {
+        hostButton = new CheckBox("Host a game");
+        hostButton.getStyleClass().add("checkButton");
+        handledNodes.add(hostButton);
         
-        /* Enter Names */
-        
-        playerOneLabel = new Label("Player One [Black}");
+    }
+    
+    private void initEnterNameScreen() {
+        Label playerOneLabel = new Label("Player One [Black}");
         playerOneLabel.getStyleClass().add("nameLabel");
-        
         playerOneName = new TextField();
         playerOneName.getStyleClass().add("nameField");
         playerOneName.setPromptText("Enter Name");
-        playerOneName.setOnKeyPressed(controller);
-        
+        handledNodes.add(playerOneName);
         playerOneError = new Label();
         playerOneError.getStyleClass().add("nameError");
+        VBox playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
+        playerOneNameBox.getStyleClass().add("nameBox");
         
         Label playerTwoLabel = new Label("Player Two [White}");
         playerTwoLabel.getStyleClass().add("nameLabel");
-        
         playerTwoName = new TextField();
         playerTwoName.getStyleClass().add("nameField");
         playerTwoName.setPromptText("Enter Name");
-        playerTwoName.setOnKeyPressed(controller);
-        
+        handledNodes.add(playerTwoName);
         playerTwoError = new Label();
         playerTwoError.getStyleClass().add("nameError");
-        
-        playerOneNameBox = new VBox(playerOneLabel, playerOneName, playerOneError);
-        playerOneNameBox.getStyleClass().add("nameBox");
-        
         VBox playerTwoNameBox = new VBox(playerTwoLabel, playerTwoName, playerTwoError);
         playerTwoNameBox.getStyleClass().add("nameBox");
         
         namesWrapper = new HBox(playerOneNameBox, playerTwoNameBox);
         namesWrapper.setId("namesWrapper");
         
-        playButton = new Button("Play");
-        playButton.getStyleClass().add("nameButton");
-        playButton.setOnMouseClicked(controller);
-        playButton.setOnKeyPressed(controller);
-        
-        backButton = new Button("Go Back");
-        backButton.getStyleClass().add("nameButton");
-        backButton.setOnMouseClicked(controller);
-        backButton.setOnKeyPressed(controller);
-        
-        buttonsWrapper = new HBox(playButton, backButton);
-        buttonsWrapper.setId("buttonsWrapper");
-    }
-    
-    public void drawMainMenu() {
-        this.setStyle("-fx-background-color: rgba(56, 56, 56)");
-        root.getChildren().clear();
-        root.getChildren().add(this);
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton,
-                settingsButton, exitButton);
-    
-        File file = new File("saves/resume.ser");
-        if(!file.exists()) {
-            resumeButton.setDisable(true);
-        }
-    }
-    
-    public void drawSelectModeScreen() {
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, versusPlayerButton, versusAIButton, cancelButton);
-    }
-    
-    public void drawSpeedSelectScreen() {
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, normalGameButton, speedGameButton, cancelButton);
-    }
-    
-    public void drawEnterNameScreen() {
-        this.getChildren().clear();
-        playerOneNameBox.getChildren().clear();
-        playerOneNameBox.getChildren().addAll(playerOneLabel, playerOneName, playerOneError);
-        this.getChildren().addAll(menuGameTitle, namesWrapper, buttonsWrapper);
-    }
-    
-    public void drawSelectDifficultyScreen() {
-        
-        easyButton = new Button("Easy");
-        easyButton.getStyleClass().add("menuButton");
-        easyButton.setOnMouseClicked(controller);
-        easyButton.setOnKeyPressed(controller);
-        
-        hardButton = new Button("Hard");
-        hardButton.getStyleClass().add("menuButton");
-        hardButton.setOnMouseClicked(controller);
-        hardButton.setOnKeyPressed(controller);
-        
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle,easyButton,hardButton, cancelButton);
-    }
-    
-    public void drawEnterNameVersusAIScreen() {
-    
-        Label singlePlayerLabel = new Label("Player");
-        singlePlayerLabel.getStyleClass().add("nameLabel");
-        
-        VBox singlePlayerNameBox = new VBox(singlePlayerLabel, playerOneName, playerOneError);
-        singlePlayerNameBox.setId("AINameBox");
-        
-        HBox versusAINameWrapper = new HBox(singlePlayerNameBox);
-        versusAINameWrapper.setId("versusAINameWrapper");
-    
-        
-        Label radioLabel = new Label("Select your color");
-        radioLabel.getStyleClass().add("nameLabel");
-    
-        toggleGroup = new ToggleGroup();
-    
-        blackRadio = new RadioButton("Black");
-        blackRadio.getStyleClass().add("radioButton");
-        blackRadio.setToggleGroup(toggleGroup);
-        blackRadio.setOnMouseClicked(controller);
-        blackRadio.setOnKeyPressed(controller);
-    
-        whiteRadio = new RadioButton("White");
-        whiteRadio.getStyleClass().add("radioButton");
-        whiteRadio.setToggleGroup(toggleGroup);
-        whiteRadio.setOnMouseClicked(controller);
-        whiteRadio.setOnKeyPressed(controller);
-    
-        HBox radioBox = new HBox(blackRadio, whiteRadio);
-        radioBox.setId("radioBox");
-    
-        VBox radioWrapper = new VBox(radioLabel, radioBox);
-        radioWrapper.setId("radioWrapper");
-        
-        
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, versusAINameWrapper, radioWrapper, buttonsWrapper);
+        Label pointsRadioLabel = new Label("Select the max score");
+        pointsRadioLabel.getStyleClass().add("nameLabel");
+        ToggleGroup pointsToggleGroup = new ToggleGroup();
+        RadioButton oneRadio = new RadioButton("1");
+        oneRadio.getStyleClass().add("radioButton");
+        oneRadio.setToggleGroup(pointsToggleGroup);
+        oneRadio.setSelected(true);
+        handledNodes.add(oneRadio);
+        threeRadio = new RadioButton("3");
+        threeRadio.getStyleClass().add("radioButton");
+        threeRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(threeRadio);
+        sevenRadio = new RadioButton("7");
+        sevenRadio.getStyleClass().add("radioButton");
+        sevenRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(sevenRadio);
+        fifteenRadio = new RadioButton("15");
+        fifteenRadio.getStyleClass().add("radioButton");
+        fifteenRadio.setToggleGroup(pointsToggleGroup);
+        handledNodes.add(fifteenRadio);
+        HBox pointsRadioBox = new HBox(oneRadio, threeRadio, sevenRadio, fifteenRadio);
+        pointsRadioBox.getStyleClass().add("radioBox");
+        pointsRadioWrapper = new VBox(pointsRadioLabel, pointsRadioBox);
+        pointsRadioWrapper.getStyleClass().add("radioWrapper");
+        pointsRadioWrapper.setId("pointsRadioWrapper");
         
     }
     
-    public void drawNameErrorMessage(Label player, String errorMessage) {
-        player.setText(errorMessage);
+    public RadioButton getThreeRadio() {
+        return threeRadio;
     }
     
-    public void initPauseScreen() {
-        this.setStyle("-fx-background-color: rgba(56, 56, 56, 0.5)");
-        root.getChildren().add(this);
-        drawPauseScreen();
+    public RadioButton getSevenRadio() {
+        return sevenRadio;
     }
     
-    public void drawPauseScreen() {
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, resumeButton, newGameButton, leaderboardButton, settingsButton, exitButton);
-        resumeButton.setDisable(false);
-        this.resumeButton.requestFocus();
+    public RadioButton getFifteenRadio() {
+        return fifteenRadio;
     }
     
-    public void drawEndScreen(String winner) {
-        Label label = new Label(winner + " wins!");
-        label.setId("winMessage");
-        
-        returnToMainMenuButton = new Button("Return to Main Menu");
-        returnToMainMenuButton.getStyleClass().add("menuButton");
-        returnToMainMenuButton.setOnMouseClicked(controller);
-        returnToMainMenuButton.setOnKeyPressed(controller);
-        
-        this.setStyle("-fx-background-color: rgba(56, 56, 56, 0.5)");
-        root.getChildren().add(this);
-        this.getChildren().clear();
-        this.getChildren().addAll(menuGameTitle, label, returnToMainMenuButton);
-        
-        returnToMainMenuButton.requestFocus();
-    }
-    
-    public Button getNewGameButton() {
-        return newGameButton;
-    }
-    
-    public Button getLeaderboardButton() {
-        return leaderboardButton;
-    }
-    
-    public Button getSettingsButton() {
-        return settingsButton;
-    }
-    
-    public Button getExitButton() {
-        return exitButton;
+    public CheckBox getHostButton() {
+        return hostButton;
     }
     
     public Button getResumeButton() {
         return resumeButton;
     }
     
+    public Button getNewGameButton() {
+        return newGameButton;
+    }
+    
+    public Button getExitButton() {
+        return exitButton;
+    }
+    
     public Button getVersusPlayerButton() {
         return versusPlayerButton;
+    }
+    
+    public Button getOnlineButton() {
+        return onlineButton;
+    }
+    
+    public Button getLocalButton() {
+        return localButton;
     }
     
     public Button getVersusAIButton() {
@@ -320,20 +283,12 @@ public class MenuView extends VBox {
         return cancelButton;
     }
     
-    public Button getPlayButton() {
-        return playButton;
-    }
-    
-    public Button getBackButton() {
-        return backButton;
+    public TextField getPlayerOneName() {
+        return playerOneName;
     }
     
     public TextField getPlayerTwoName() {
         return playerTwoName;
-    }
-    
-    public TextField getPlayerOneName() {
-        return playerOneName;
     }
     
     public Label getPlayerOneError() {
@@ -348,42 +303,7 @@ public class MenuView extends VBox {
         return returnToMainMenuButton;
     }
     
-    public Button getNormalGameButton() {
-        return normalGameButton;
-    }
-    
-    public Button getSpeedGameButton() {
-        return speedGameButton;
-    }
-    
-    public RadioButton getBlackRadio() {
-        return blackRadio;
-    }
-    
-    public RadioButton getWhiteRadio() {
-        return whiteRadio;
-    }
-    
-    public ToggleGroup getToggleGroup() {
-        return toggleGroup;
-    }
-    
-    public Button getHardButton() {
-        return hardButton;
-    }
-    
-    public Button getEasyButton() {
-        return easyButton;
-    }
-    
-    private Text drawLetter(String name, Colors color) {
-        Text letter = new Text(name);
-        letter.setFill(color.getValue());
-        letter.getStyleClass().add("titleLetter");
-        return letter;
-    }
-    
-    private TextFlow drawTitle() {
-        return new TextFlow(drawLetter("K", Colors.ORANGE), drawLetter("A", Colors.NAVY), drawLetter("M", Colors.BLUE), drawLetter("I", Colors.PINK), drawLetter("S", Colors.YELLOW), drawLetter("A", Colors.RED), drawLetter("D", Colors.GREEN), drawLetter("O", Colors.BROWN));
+    public Button getContinueMatchButton() {
+        return continueMatchButton;
     }
 }

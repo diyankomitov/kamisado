@@ -2,14 +2,25 @@
     -fx-font-family: Akashi;
 }
 
-/* Main Menu Styling */
+.text {
+    -fx-font-family: Akashi;
+}
 
-#menuView {
+.transparentMenu {
     -fx-background-color: #383838;
-    -fx-alignment: baseline-center;
+}
+
+/*noinspection CssInvalidPseudoSelector*/
+.transparentMenu:transparent {
+    -fx-background-color: rgba(56, 56, 56, 0.5)
+}
+
+/* Main Menu Styling */
+#menuView {
+    -fx-alignment: center;
     -fx-fill-width: false;
     -fx-padding: 250,0,0,0;
-    -fx-spacing: 50;
+    -fx-spacing: 25;
 }
 
 #gameTitle {
@@ -43,37 +54,46 @@
     -fx-spacing: 0;
 }
 
+/* Online screen styling */
+.checkButton {
+    -fx-font-size: 26;
+    -fx-text-fill: white;
+}
+
 /* Enter Name Screen Styling */
 #namesWrapper {
+    -fx-alignment: inherit;
     -fx-spacing: 10;
 }
 
 .nameBox {
+    -fx-alignment: inherit;
     -fx-spacing: 10;
-    -fx-alignment: center
 }
 
 .nameLabel {
+    -fx-alignment: inherit;
     -fx-font-size: 26;
     -fx-text-fill: #707070;
 }
 
 .nameField {
+    -fx-alignment: inherit;
     -fx-prompt-text-fill: derive(-fx-control-inner-background, -30%);
     -fx-font-size: 30;
     -fx-max-width: 500;
     -fx-background-color: #707070;
     -fx-text-fill: white;
-    -fx-alignment: center
 }
 
 .nameError {
+    -fx-alignment: inherit;
     -fx-font-size: 12;
     -fx-text-fill: red;
 }
 
 #buttonsWrapper {
-    -fx-alignment: center-right;
+    -fx-alignment: inherit;
     -fx-spacing: 10;
 }
 
@@ -97,28 +117,35 @@
 }
 
 
-/* AI enter name styling */
+/* Single player screen styling*/
+
+#singlePlayerScreen {
+    -fx-alignment: center;
+    -fx-padding: 250,0,0,0;
+    -fx-spacing: 25;
+}
+
 .radioButton {
+    -fx-alignment: inherit;
     -fx-font-size: 20;
     -fx-text-fill: white;
 }
 
-#radioBox {
-    -fx-alignment: center;
+.radioBox {
+    -fx-alignment: inherit;
     -fx-spacing: 20;
 }
 
-#versusAINameWrapper {
+.radioWrapper {
+    -fx-alignment: inherit;
+}
+
+#colorRadioWrapper {
+}
+
+#singlePlayerNameWrapper {
+    -fx-alignment: inherit;
     -fx-spacing: 10;
-}
-
-#AINameBox {
-    -fx-spacing: 20;
-    -fx-alignment: center;
-}
-
-#radioWrapper {
-    -fx-alignment: top-center;
 }
 
 /* Game screen styling */

@@ -2,6 +2,7 @@ package com.team11.kamisado.controllers;
 
 import com.team11.kamisado.models.Board;
 import com.team11.kamisado.models.Player;
+import com.team11.kamisado.util.GameMode;
 import com.team11.kamisado.views.GameView;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -16,8 +17,8 @@ public class SpeedGameController extends GameController {
     private IntegerProperty timeSeconds;
     private boolean firstMove;
     
-    public SpeedGameController(MenuController menuController, GameView gameView, Board board, int currentTime) {
-        super(menuController, gameView, board);
+    public SpeedGameController(MenuController menuController, GameView gameView, Board board, GameMode gameMode, int currentTime) {
+        super(menuController, gameView, board, gameMode);
         
         this.firstMove = board.isFirstMove();
         
@@ -35,8 +36,8 @@ public class SpeedGameController extends GameController {
     }
     
     @Override
-    public void setActiveController() {
-        super.setActiveController();
+    public void play() {
+        super.play();
         timeline.play();
     }
     
