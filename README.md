@@ -1,10 +1,10 @@
 CS207 Kamisado Project
 ====
-Version 2.0
+Version 2.1
 
-Kamisado game with Single Player and Co-Op Multiplayer.
-Features Regular and timed Speed Mode, 2 levels of AI and
-a beautiful modern GUI for an amazing gaming experience.
+Kamisado game with Single Player, Co-Op Multiplayer and half working Online Multiplayer.
+Features Regular and timed Speed Mode, Random board mode, 2 levels of AI and
+a beautiful modern GUI for an amazing gaming experience. Implements the full rules of the Kamisado board game.
 Want to save your game? No problem! Made a stupid move and the AI
 is kicking your ass? Dont worry, just undo.
 
